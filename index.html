@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" data-theme="light">
+<html lang="it" data-theme="light" data-lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -63,11 +63,12 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       display: grid;
-      grid-template-columns: 62px 1fr 90px;
+      grid-template-columns: 62px 1fr auto;
       align-items: center;
       padding: 0 1rem;
       z-index: 400;
       transition: background 0.4s, border-color 0.4s;
+      gap: 0.5rem;
     }
 
     .menu-toggle {
@@ -132,7 +133,15 @@
       color: var(--text);
     }
 
-    .theme-toggle {
+    /* Header controls group */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-self: end;
+    }
+
+    .theme-toggle, .lang-toggle {
       background: none;
       border: 1.5px solid var(--border);
       border-radius: 50px;
@@ -143,10 +152,20 @@
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
       transition: all 0.2s;
-      justify-self: end;
       white-space: nowrap;
     }
-    .theme-toggle:hover { background: var(--gray-light); }
+    .theme-toggle:hover, .lang-toggle:hover { background: var(--gray-light); }
+
+    /* Lang toggle active state */
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .lang-flag {
+      font-size: 0.9rem;
+      line-height: 1;
+    }
 
     .sidebar {
       position: fixed;
@@ -459,7 +478,11 @@
       .drone-grid, .info-grid { grid-template-columns: 1fr; }
       .timeline-item { grid-template-columns: 55px 1fr; gap: 0.8rem; }
       .stat-box { min-width: 85px; }
+      .theme-toggle span { display: none; }
     }
+
+    /* Language transition */
+    [data-t] { transition: opacity 0.2s ease; }
   </style>
 </head>
 <body>
@@ -482,19 +505,23 @@
   </button>
 
   <div class="site-title">Nicolò Faustini — Droni</div>
-  <button class="theme-toggle" id="themeToggle">☾ Dark</button>
+
+  <div class="header-controls">
+    <button class="theme-toggle" id="themeToggle">☾ <span>Dark</span></button>
+    <button class="lang-toggle" id="langToggle"><span class="lang-flag">🇬🇧</span> <span id="langLabel">EN</span></button>
+  </div>
 </header>
 
 <div class="overlay-bg" id="overlayBg"></div>
 
 <div class="sidebar" id="sidebar">
   <ul>
-    <li><button class="active" data-page="introduzione">Introduzione</button></li>
-    <li><button data-page="droni">I miei droni</button></li>
-    <li><button data-page="informazioni">Come funzionano</button></li>
-    <li><button data-page="storia">Storia</button></li>
-    <li><button data-page="programmazione">Programmazione</button></li>
-    <li><button data-page="epilogo">Epilogo</button></li>
+    <li><button class="active" data-page="introduzione" data-t="nav-intro">Introduzione</button></li>
+    <li><button data-page="droni" data-t="nav-droni">I miei droni</button></li>
+    <li><button data-page="informazioni" data-t="nav-info">Come funzionano</button></li>
+    <li><button data-page="storia" data-t="nav-storia">Storia</button></li>
+    <li><button data-page="programmazione" data-t="nav-prog">Programmazione</button></li>
+    <li><button data-page="epilogo" data-t="nav-epilogo">Epilogo</button></li>
   </ul>
 </div>
 
@@ -503,105 +530,105 @@
   <!-- INTRODUZIONE -->
   <div id="introduzione" class="page active">
     <div class="page-header">
-      <div class="page-label">Presentazione</div>
-      <h1>Il mio percorso<br>nei droni</h1>
+      <div class="page-label" data-t="intro-label">Presentazione</div>
+      <h1 data-t="intro-h1">Il mio percorso<br>nei droni</h1>
     </div>
     <div class="intro-text">
-      <p>Mi chiamo <strong>Nicolò Faustini</strong>, sono uno studente del quinto anno dell'Istituto Tecnico Tecnologico, indirizzo informatica, classe 5AI. Questo sito racconta un percorso che ho iniziato quasi per caso due anni fa, quando a scuola ci hanno messo in mano un piccolo drone chiamato <strong>Ryze Tello EDU</strong> e ci hanno detto: "programmatelo". Da quel momento non mi sono più fermato.</p>
-      <p>All'inizio non sapevo quasi nulla di droni. Sapevo che erano quei dispositivi volanti che si vedono nei video su YouTube, ma non immaginavo quanto ci fosse dietro: fisica, elettronica, codice, normative, aerodinamica. Piano piano ho iniziato a capire come funzionano davvero, prima studiando le basi del volo, poi imparando a programmarli con <strong>Python</strong>, uno dei linguaggi di programmazione più diffusi al mondo.</p>
-      <p>In questi due anni ho scritto decine di script (file di codice), ho fatto volare il drone seguendo traiettorie geometriche, ho capito cosa vuol dire fare debugging (trovare e correggere errori nel codice) quando il drone non decolla come ti aspetti. Ho imparato a leggere i log di sistema, a gestire i timeout (scadenze del tempo di attesa nelle comunicazioni di rete) e a costruire sequenze di volo automatizzate.</p>
-      <p>Ma non è solo una questione tecnica. I droni mi hanno aperto gli occhi su un settore in rapidissima crescita, che tocca la logistica, l'agricoltura, il cinema e il soccorso in emergenza. Studiare le normative ENAC (Ente Nazionale per l'Aviazione Civile) ed EASA (European Union Aviation Safety Agency — l'ente europeo per la sicurezza aerea) mi ha fatto capire quanto sia importante usare questi dispositivi in modo responsabile e consapevole.</p>
-      <p>Questo sito non è un progetto perfetto. È un work in progress, esattamente come lo sono io. Contiene le cose che ho imparato, i droni che conosco, il codice che ho scritto e le riflessioni di chi ha passato due anni a fare errori e a imparare da essi.</p>
+      <p data-t="intro-p1">Mi chiamo <strong>Nicolò Faustini</strong>, sono uno studente del quinto anno dell'Istituto Tecnico Tecnologico, indirizzo informatica, classe 5AI. Questo sito racconta un percorso che ho iniziato quasi per caso due anni fa, quando a scuola ci hanno messo in mano un piccolo drone chiamato <strong>Ryze Tello EDU</strong> e ci hanno detto: "programmatelo". Da quel momento non mi sono più fermato.</p>
+      <p data-t="intro-p2">All'inizio non sapevo quasi nulla di droni. Sapevo che erano quei dispositivi volanti che si vedono nei video su YouTube, ma non immaginavo quanto ci fosse dietro: fisica, elettronica, codice, normative, aerodinamica. Piano piano ho iniziato a capire come funzionano davvero, prima studiando le basi del volo, poi imparando a programmarli con <strong>Python</strong>, uno dei linguaggi di programmazione più diffusi al mondo.</p>
+      <p data-t="intro-p3">In questi due anni ho scritto decine di script (file di codice), ho fatto volare il drone seguendo traiettorie geometriche, ho capito cosa vuol dire fare debugging (trovare e correggere errori nel codice) quando il drone non decolla come ti aspetti. Ho imparato a leggere i log di sistema, a gestire i timeout (scadenze del tempo di attesa nelle comunicazioni di rete) e a costruire sequenze di volo automatizzate.</p>
+      <p data-t="intro-p4">Ma non è solo una questione tecnica. I droni mi hanno aperto gli occhi su un settore in rapidissima crescita, che tocca la logistica, l'agricoltura, il cinema e il soccorso in emergenza. Studiare le normative ENAC (Ente Nazionale per l'Aviazione Civile) ed EASA (European Union Aviation Safety Agency — l'ente europeo per la sicurezza aerea) mi ha fatto capire quanto sia importante usare questi dispositivi in modo responsabile e consapevole.</p>
+      <p data-t="intro-p5">Questo sito non è un progetto perfetto. È un work in progress, esattamente come lo sono io. Contiene le cose che ho imparato, i droni che conosco, il codice che ho scritto e le riflessioni di chi ha passato due anni a fare errori e a imparare da essi.</p>
     </div>
     <div class="stat-row">
-      <div class="stat-box"><div class="stat-num">2</div><div class="stat-label">anni di studio</div></div>
-      <div class="stat-box"><div class="stat-num">5AI</div><div class="stat-label">classe attuale</div></div>
-      <div class="stat-box"><div class="stat-num">Python</div><div class="stat-label">linguaggio usato</div></div>
-      <div class="stat-box"><div class="stat-num">Tello</div><div class="stat-label">drone principale</div></div>
+      <div class="stat-box"><div class="stat-num">2</div><div class="stat-label" data-t="stat-anni">anni di studio</div></div>
+      <div class="stat-box"><div class="stat-num">5AI</div><div class="stat-label" data-t="stat-classe">classe attuale</div></div>
+      <div class="stat-box"><div class="stat-num">Python</div><div class="stat-label" data-t="stat-lang">linguaggio usato</div></div>
+      <div class="stat-box"><div class="stat-num">Tello</div><div class="stat-label" data-t="stat-drone">drone principale</div></div>
     </div>
-    <p style="font-size:0.8rem; color:var(--gray); margin-top:1.5rem;">Anno scolastico 2025/2026 — Istituto Tecnico Tecnologico</p>
+    <p style="font-size:0.8rem; color:var(--gray); margin-top:1.5rem;" data-t="intro-footer">Anno scolastico 2025/2026 — Istituto Tecnico Tecnologico</p>
   </div>
 
   <!-- DRONI -->
   <div id="droni" class="page">
     <div class="page-header">
-      <div class="page-label">Hardware</div>
-      <h1>I miei droni</h1>
+      <div class="page-label" data-t="droni-label">Hardware</div>
+      <h1 data-t="droni-h1">I miei droni</h1>
     </div>
     <div class="intro-text" style="margin-bottom:2rem;">
-      <p>Qui racconto i tre droni che fanno parte del mio percorso: uno è quello con cui ho iniziato a scuola (fascia base), uno è quello che vorrei usare per andare un po' oltre (fascia media), e l'ultimo è quello che rappresenta il top della gamma Tello/DJI per uso educativo e hobbistico — il mio "drone dei sogni" al momento. Per ognuno ho messo le specifiche tecniche, una descrizione e il link per acquistarlo.</p>
+      <p data-t="droni-intro">Qui racconto i tre droni che fanno parte del mio percorso: uno è quello con cui ho iniziato a scuola (fascia base), uno è quello che vorrei usare per andare un po' oltre (fascia media), e l'ultimo è quello che rappresenta il top della gamma Tello/DJI per uso educativo e hobbistico — il mio "drone dei sogni" al momento. Per ognuno ho messo le specifiche tecniche, una descrizione e il link per acquistarlo.</p>
     </div>
     <div class="drone-grid">
 
       <div class="drone-card">
         <div class="drone-img-wrap">
-          <span class="tier-badge tier-entry">Fascia Base</span>
-          <img src="https://se-cdn.djiits.com/tpc/uploads/sku/cover/3a72a039-a660-40ed-a137-c2df14b394a7@ultra.png" />
+          <span class="tier-badge tier-entry" data-t="tier-entry">Fascia Base</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/sku/cover/3a72a039-a660-40ed-a137-c2df14b394a7@ultra.png" alt="Ryze Tello EDU" />
         </div>
         <div class="drone-info">
           <div class="drone-name">Ryze Tello EDU</div>
           <div class="drone-price">~ 130 €</div>
           <div class="badges-row">
-            <span class="badge">No patentino</span><span class="badge">SDK Python</span><span class="badge">Indoor</span><span class="badge">Wi-Fi</span>
+            <span class="badge" data-t="badge-nopatent">No patentino</span><span class="badge">SDK Python</span><span class="badge">Indoor</span><span class="badge">Wi-Fi</span>
           </div>
-          <p class="drone-desc">Il mio primo drone. È piccolo, leggero (87 g) e si controlla via Wi-Fi (rete wireless locale). La parte più interessante è il suo SDK (Software Development Kit) che permette di programmarlo in Python, Swift o Scratch. Con questo ho imparato i comandi base: decollo, atterraggio, movimenti cardinali e rotazioni. Per quanto offre, il prezzo è davvero onesto.</p>
+          <p class="drone-desc" data-t="tello-desc">Il mio primo drone. È piccolo, leggero (87 g) e si controlla via Wi-Fi (rete wireless locale). La parte più interessante è il suo SDK (Software Development Kit) che permette di programmarlo in Python, Swift o Scratch. Con questo ho imparato i comandi base: decollo, atterraggio, movimenti cardinali e rotazioni. Per quanto offre, il prezzo è davvero onesto.</p>
           <table class="spec-table">
-            <tr><td>Peso</td><td>87 g</td></tr>
-            <tr><td>Autonomia</td><td>~13 min</td></tr>
-            <tr><td>Velocità max</td><td>8 m/s</td></tr>
-            <tr><td>Camera</td><td>5 MP, 720p HD</td></tr>
-            <tr><td>Range (portata)</td><td>~100 m</td></tr>
-            <tr><td>Stabilizzazione</td><td>EIS (Electronic Image Stabilization)</td></tr>
+            <tr><td data-t="spec-peso">Peso</td><td>87 g</td></tr>
+            <tr><td data-t="spec-auto">Autonomia</td><td>~13 min</td></tr>
+            <tr><td data-t="spec-vel">Velocità max</td><td>8 m/s</td></tr>
+            <tr><td data-t="spec-cam">Camera</td><td>5 MP, 720p HD</td></tr>
+            <tr><td data-t="spec-range">Range (portata)</td><td>~100 m</td></tr>
+            <tr><td data-t="spec-stab">Stabilizzazione</td><td>EIS (Electronic Image Stabilization)</td></tr>
           </table>
-          <a class="buy-btn" href="https://store.dji.com/it/product/tello-edu" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+          <a class="buy-btn" href="https://store.dji.com/it/product/tello-edu" target="_blank" rel="noopener" data-t="buy-btn">Acquista su DJI Store →</a>
         </div>
       </div>
 
       <div class="drone-card">
         <div class="drone-img-wrap">
-          <span class="tier-badge tier-mid">Fascia Media</span>
-          <img src="https://se-cdn.djiits.com/tpc/uploads/spu/cover/7a75df0274ad64bfbf877a1ed8832e72@ultra.png" />
+          <span class="tier-badge tier-mid" data-t="tier-mid">Fascia Media</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/spu/cover/7a75df0274ad64bfbf877a1ed8832e72@ultra.png" alt="DJI RoboMaster TT" />
         </div>
         <div class="drone-info">
           <div class="drone-name">DJI RoboMaster TT</div>
           <div class="drone-price">~ 290 €</div>
           <div class="badges-row">
-            <span class="badge">SDK avanzato</span><span class="badge">LED RGB</span><span class="badge">Sensore ToF</span><span class="badge">Espandibile</span>
+            <span class="badge" data-t="badge-sdk">SDK avanzato</span><span class="badge">LED RGB</span><span class="badge" data-t="badge-tof">Sensore ToF</span><span class="badge" data-t="badge-exp">Espandibile</span>
           </div>
-          <p class="drone-desc">Il RoboMaster TT è sostanzialmente un Tello EDU potenziato: mantiene gli stessi comandi base ma aggiunge un sensore ToF (Time-of-Flight), LED RGB programmabili e una porta di espansione per sensori aggiuntivi. Ideale per chi vuole iniziare con la visione artificiale e la robotica.</p>
+          <p class="drone-desc" data-t="tt-desc">Il RoboMaster TT è sostanzialmente un Tello EDU potenziato: mantiene gli stessi comandi base ma aggiunge un sensore ToF (Time-of-Flight), LED RGB programmabili e una porta di espansione per sensori aggiuntivi. Ideale per chi vuole iniziare con la visione artificiale e la robotica.</p>
           <table class="spec-table">
-            <tr><td>Peso</td><td>87 g (telaio base)</td></tr>
-            <tr><td>Autonomia</td><td>~13 min</td></tr>
-            <tr><td>Velocità max</td><td>8 m/s</td></tr>
-            <tr><td>Camera</td><td>5 MP, 720p HD</td></tr>
-            <tr><td>Sensore ToF</td><td>Sì, portata fino a 10 m</td></tr>
-            <tr><td>LED</td><td>8 LED RGB programmabili</td></tr>
+            <tr><td data-t="spec-peso">Peso</td><td>87 g (telaio base)</td></tr>
+            <tr><td data-t="spec-auto">Autonomia</td><td>~13 min</td></tr>
+            <tr><td data-t="spec-vel">Velocità max</td><td>8 m/s</td></tr>
+            <tr><td data-t="spec-cam">Camera</td><td>5 MP, 720p HD</td></tr>
+            <tr><td data-t="spec-tof">Sensore ToF</td><td data-t="spec-tof-val">Sì, portata fino a 10 m</td></tr>
+            <tr><td>LED</td><td data-t="spec-led">8 LED RGB programmabili</td></tr>
           </table>
-          <a class="buy-btn" href="https://store.dji.com/it/product/robomaster-tt" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+          <a class="buy-btn" href="https://store.dji.com/it/product/robomaster-tt" target="_blank" rel="noopener" data-t="buy-btn">Acquista su DJI Store →</a>
         </div>
       </div>
 
       <div class="drone-card">
         <div class="drone-img-wrap">
-          <span class="tier-badge tier-high">Fascia Alta</span>
-          <img src="https://se-cdn.djiits.com/tpc/uploads/carousel/image/2034615e17930304e622e9276219398c@origin.jpg" />
+          <span class="tier-badge tier-high" data-t="tier-high">Fascia Alta</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/carousel/image/2034615e17930304e622e9276219398c@origin.jpg" alt="DJI Mini 4 Pro" />
         </div>
         <div class="drone-info">
           <div class="drone-name">DJI Mini 4 Pro</div>
           <div class="drone-price">~ 759 €</div>
           <div class="badges-row">
-            <span class="badge">4K HDR</span><span class="badge">APAS 360°</span><span class="badge">&lt; 249 g</span><span class="badge">34 min autonomia</span>
+            <span class="badge">4K HDR</span><span class="badge">APAS 360°</span><span class="badge">&lt; 249 g</span><span class="badge" data-t="badge-auto">34 min autonomia</span>
           </div>
-          <p class="drone-desc">Il DJI Mini 4 Pro è attualmente uno dei migliori droni consumer sul mercato. Pesa meno di 249 g — soglia importante perché al di sotto di questo peso le normative europee prevedono meno restrizioni operative. Ha una camera con sensore CMOS da 1/1.3" capace di girare video in 4K HDR e il sistema APAS 4.0 che evita automaticamente gli ostacoli.</p>
+          <p class="drone-desc" data-t="mini4-desc">Il DJI Mini 4 Pro è attualmente uno dei migliori droni consumer sul mercato. Pesa meno di 249 g — soglia importante perché al di sotto di questo peso le normative europee prevedono meno restrizioni operative. Ha una camera con sensore CMOS da 1/1.3" capace di girare video in 4K HDR e il sistema APAS 4.0 che evita automaticamente gli ostacoli.</p>
           <table class="spec-table">
-            <tr><td>Peso</td><td>249 g</td></tr>
-            <tr><td>Autonomia</td><td>~34 min</td></tr>
-            <tr><td>Velocità max</td><td>57 km/h</td></tr>
-            <tr><td>Camera</td><td>4K/60fps, sensore 1/1.3" CMOS</td></tr>
-            <tr><td>Range (portata)</td><td>~20 km (trasmissione O4)</td></tr>
-            <tr><td>Gimbal</td><td>3 assi — stabilizzazione meccanica</td></tr>
+            <tr><td data-t="spec-peso">Peso</td><td>249 g</td></tr>
+            <tr><td data-t="spec-auto">Autonomia</td><td>~34 min</td></tr>
+            <tr><td data-t="spec-vel">Velocità max</td><td>57 km/h</td></tr>
+            <tr><td data-t="spec-cam">Camera</td><td>4K/60fps, sensore 1/1.3" CMOS</td></tr>
+            <tr><td data-t="spec-range">Range (portata)</td><td>~20 km (trasmissione O4)</td></tr>
+            <tr><td data-t="spec-gimbal">Gimbal</td><td data-t="spec-gimbal-val">3 assi — stabilizzazione meccanica</td></tr>
           </table>
-          <a class="buy-btn" href="https://store.dji.com/it/product/dji-mini-4-pro" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+          <a class="buy-btn" href="https://store.dji.com/it/product/dji-mini-4-pro" target="_blank" rel="noopener" data-t="buy-btn">Acquista su DJI Store →</a>
         </div>
       </div>
 
@@ -611,57 +638,57 @@
   <!-- INFORMAZIONI -->
   <div id="informazioni" class="page">
     <div class="page-header">
-      <div class="page-label">Tecnologia</div>
-      <h1>Come funzionano<br>i droni</h1>
+      <div class="page-label" data-t="info-label">Tecnologia</div>
+      <h1 data-t="info-h1">Come funzionano<br>i droni</h1>
     </div>
     <div class="intro-text" style="margin-bottom:2rem;">
-      <p>Un drone, chiamato tecnicamente UAV (Unmanned Aerial Vehicle — veicolo aereo senza pilota a bordo), è un sistema molto più complesso di quanto sembri dall'esterno. Sotto la scocca di plastica ci sono sensori, algoritmi di controllo e sistemi di comunicazione che lavorano insieme centinaia di volte al secondo. Di seguito spiego i componenti principali e come interagiscono tra loro.</p>
+      <p data-t="info-intro">Un drone, chiamato tecnicamente UAV (Unmanned Aerial Vehicle — veicolo aereo senza pilota a bordo), è un sistema molto più complesso di quanto sembri dall'esterno. Sotto la scocca di plastica ci sono sensori, algoritmi di controllo e sistemi di comunicazione che lavorano insieme centinaia di volte al secondo. Di seguito spiego i componenti principali e come interagiscono tra loro.</p>
     </div>
     <div class="info-grid">
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Flight Controller (FC)</div><p class="info-text">È il "cervello" del drone. Il FC (Flight Controller — controllore di volo) è una scheda elettronica che raccoglie i dati da tutti i sensori e calcola la velocità esatta di ciascun motore centinaia di volte al secondo per mantenere il drone stabile. Senza di esso il drone sarebbe incontrollabile.</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">IMU — Unità di misura inerziale</div><p class="info-text">L'IMU (Inertial Measurement Unit) contiene accelerometri e giroscopi. Gli accelerometri misurano l'accelerazione lineare in ogni direzione, i giroscopi misurano la velocità di rotazione attorno ai tre assi: rollio (roll), beccheggio (pitch) e imbardata (yaw).</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">GPS e GNSS</div><p class="info-text">Il GPS e il GNSS (Global Navigation Satellite System) permettono al drone di conoscere la propria posizione con precisione. Sono fondamentali per il volo autonomo, il return-to-home e l'hovering (volo stazionario in posizione fissa).</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Batteria LiPo</div><p class="info-text">I droni usano batterie LiPo (Lithium Polymer) per l'ottimo rapporto tra energia erogata e peso contenuto. Richiedono però cura: non vanno scaricate completamente, devono essere conservate alla giusta tensione e ricaricate con caricatori appositi per evitare danni o incendi.</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Protocolli di comunicazione</div><p class="info-text">Il Tello EDU comunica via Wi-Fi (IEEE 802.11n) usando UDP (User Datagram Protocol). I comandi vengono inviati sulla porta 8889, la telemetria (dati di stato del drone: altitudine, temperatura, velocità) arriva sulla porta 8890. Capire questo mi ha aiutato a scrivere script Python più stabili.</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Normative ENAC / EASA</div><p class="info-text">In Italia i droni sono regolati da ENAC (Ente Nazionale per l'Aviazione Civile) secondo le norme EASA (European Union Aviation Safety Agency). I droni sotto i 250 g come il Tello (87 g) rientrano nella Categoria Aperta A1 e possono volare senza patentino in molte situazioni. Oltre certi pesi o utilizzi servono registrazione ed esame.</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Gimbal e stabilizzazione</div><p class="info-text">Il gimbal è un supporto motorizzato multi-asse che mantiene la camera sempre orizzontale indipendentemente dai movimenti del drone. I droni di fascia alta usano gimbal meccanici a 3 assi; quelli economici come il Tello usano l'EIS (Electronic Image Stabilization), che compensa digitalmente le vibrazioni in post-elaborazione.</p></div>
-      <div class="info-card"><div class="info-icon"></div><div class="info-title">Visione artificiale</div><p class="info-text">I droni moderni usano algoritmi di computer vision (visione artificiale) per rilevare ostacoli, riconoscere superfici e stimare la propria posizione anche senza GPS. Tecniche come VIO (Visual-Inertial Odometry) permettono un volo più preciso e sicuro in ambienti chiusi o con segnale GPS assente.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="fc-title">Flight Controller (FC)</div><p class="info-text" data-t="fc-text">È il "cervello" del drone. Il FC (Flight Controller — controllore di volo) è una scheda elettronica che raccoglie i dati da tutti i sensori e calcola la velocità esatta di ciascun motore centinaia di volte al secondo per mantenere il drone stabile. Senza di esso il drone sarebbe incontrollabile.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="imu-title">IMU — Unità di misura inerziale</div><p class="info-text" data-t="imu-text">L'IMU (Inertial Measurement Unit) contiene accelerometri e giroscopi. Gli accelerometri misurano l'accelerazione lineare in ogni direzione, i giroscopi misurano la velocità di rotazione attorno ai tre assi: rollio (roll), beccheggio (pitch) e imbardata (yaw).</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="gps-title">GPS e GNSS</div><p class="info-text" data-t="gps-text">Il GPS e il GNSS (Global Navigation Satellite System) permettono al drone di conoscere la propria posizione con precisione. Sono fondamentali per il volo autonomo, il return-to-home e l'hovering (volo stazionario in posizione fissa).</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="lipo-title">Batteria LiPo</div><p class="info-text" data-t="lipo-text">I droni usano batterie LiPo (Lithium Polymer) per l'ottimo rapporto tra energia erogata e peso contenuto. Richiedono però cura: non vanno scaricate completamente, devono essere conservate alla giusta tensione e ricaricate con caricatori appositi per evitare danni o incendi.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="proto-title">Protocolli di comunicazione</div><p class="info-text" data-t="proto-text">Il Tello EDU comunica via Wi-Fi (IEEE 802.11n) usando UDP (User Datagram Protocol). I comandi vengono inviati sulla porta 8889, la telemetria (dati di stato del drone: altitudine, temperatura, velocità) arriva sulla porta 8890. Capire questo mi ha aiutato a scrivere script Python più stabili.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="norm-title">Normative ENAC / EASA</div><p class="info-text" data-t="norm-text">In Italia i droni sono regolati da ENAC (Ente Nazionale per l'Aviazione Civile) secondo le norme EASA (European Union Aviation Safety Agency). I droni sotto i 250 g come il Tello (87 g) rientrano nella Categoria Aperta A1 e possono volare senza patentino in molte situazioni. Oltre certi pesi o utilizzi servono registrazione ed esame.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="gimbal-title">Gimbal e stabilizzazione</div><p class="info-text" data-t="gimbal-text">Il gimbal è un supporto motorizzato multi-asse che mantiene la camera sempre orizzontale indipendentemente dai movimenti del drone. I droni di fascia alta usano gimbal meccanici a 3 assi; quelli economici come il Tello usano l'EIS (Electronic Image Stabilization), che compensa digitalmente le vibrazioni in post-elaborazione.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title" data-t="vision-title">Visione artificiale</div><p class="info-text" data-t="vision-text">I droni moderni usano algoritmi di computer vision (visione artificiale) per rilevare ostacoli, riconoscere superfici e stimare la propria posizione anche senza GPS. Tecniche come VIO (Visual-Inertial Odometry) permettono un volo più preciso e sicuro in ambienti chiusi o con segnale GPS assente.</p></div>
     </div>
   </div>
 
   <!-- STORIA -->
   <div id="storia" class="page">
     <div class="page-header">
-      <div class="page-label">Contesto storico</div>
-      <h1>L'evoluzione dei droni</h1>
+      <div class="page-label" data-t="storia-label">Contesto storico</div>
+      <h1 data-t="storia-h1">L'evoluzione dei droni</h1>
     </div>
     <div class="intro-text" style="margin-bottom:2rem;">
-      <p>La storia dei droni è molto più lunga di quanto si pensi: non è una tecnologia degli anni 2000, le sue radici arrivano fino al XIX secolo. Conoscere questa evoluzione mi ha aiutato a capire quanto rapidamente questo settore stia ancora crescendo.</p>
+      <p data-t="storia-intro">La storia dei droni è molto più lunga di quanto si pensi: non è una tecnologia degli anni 2000, le sue radici arrivano fino al XIX secolo. Conoscere questa evoluzione mi ha aiutato a capire quanto rapidamente questo settore stia ancora crescendo.</p>
     </div>
     <div class="timeline">
-      <div class="timeline-item"><div class="timeline-year">1849</div><div class="timeline-content"><h3>I palloni bomba austriaci</h3><p>L'esercito austriaco utilizza palloni aerostatici carichi di esplosivo durante l'assedio di Venezia. Non erano controllati, ma rappresentano uno dei primissimi esempi di "arma aerea senza pilota" nella storia.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">1917</div><div class="timeline-content"><h3>Kettering Bug — il primo drone militare</h3><p>Gli USA sviluppano il "Kettering Bug", un biplano automatico guidato da un giroscopio e da un altimetro. Era programmato per percorrere una distanza precisa e poi precipitare sul bersaglio.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">1935</div><div class="timeline-content"><h3>De Havilland Queen Bee — nasce il termine "drone"</h3><p>Il britannico De Havilland Queen Bee è spesso citato come il primo UAV moderno radiocomandato. Si dice che il termine "drone" (fuco in inglese) derivi dal ronzio di questo velivolo durante le esercitazioni di tiro antiaereo.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">1960–80</div><div class="timeline-content"><h3>Guerra Fredda e Vietnam — droni da ricognizione</h3><p>Gli USA usano droni Ryan Firebee per missioni di ISR (Intelligence, Surveillance, Reconnaissance) sopra territori nemici, evitando di mettere in pericolo i piloti umani. È in questi anni che i droni diventano strumenti seri di intelligence militare.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">2006</div><div class="timeline-content"><h3>Nasce DJI</h3><p>Frank Wang fonda DJI (Da-Jiang Innovations) a Shenzhen, Cina. L'azienda inizierà a rivoluzionare il mercato consumer dei droni, rendendo accessibile una tecnologia fino ad allora riservata a militari e professionisti.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">2013</div><div class="timeline-content"><h3>DJI Phantom — il drone per tutti</h3><p>Il DJI Phantom è il primo drone consumer davvero di massa. Con GPS integrato, stabilizzazione automatica e camera, apre il mercato hobbistico e professionale a milioni di persone in tutto il mondo.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">2019</div><div class="timeline-content"><h3>Ryze Tello EDU — il drone della mia storia</h3><p>Ryze Tech, con il supporto di DJI e Intel, lancia il Tello EDU: versione educativa del Tello con SDK aperto per Python, Swift e Scratch. È il drone con cui ho iniziato il mio percorso.</p></div></div>
-      <div class="timeline-item"><div class="timeline-year">Oggi</div><div class="timeline-content"><h3>AI, autonomia e nuove normative</h3><p>I droni moderni integrano AI per evitare ostacoli, fare SLAM (Simultaneous Localization And Mapping) e volare in modo autonomo. L'EASA ha introdotto il regolamento U-Space per gestire il traffico aereo dei droni su scala europea.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1849</div><div class="timeline-content"><h3 data-t="t1849-h">I palloni bomba austriaci</h3><p data-t="t1849-p">L'esercito austriaco utilizza palloni aerostatici carichi di esplosivo durante l'assedio di Venezia. Non erano controllati, ma rappresentano uno dei primissimi esempi di "arma aerea senza pilota" nella storia.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1917</div><div class="timeline-content"><h3 data-t="t1917-h">Kettering Bug — il primo drone militare</h3><p data-t="t1917-p">Gli USA sviluppano il "Kettering Bug", un biplano automatico guidato da un giroscopio e da un altimetro. Era programmato per percorrere una distanza precisa e poi precipitare sul bersaglio.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1935</div><div class="timeline-content"><h3 data-t="t1935-h">De Havilland Queen Bee — nasce il termine "drone"</h3><p data-t="t1935-p">Il britannico De Havilland Queen Bee è spesso citato come il primo UAV moderno radiocomandato. Si dice che il termine "drone" (fuco in inglese) derivi dal ronzio di questo velivolo durante le esercitazioni di tiro antiaereo.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1960–80</div><div class="timeline-content"><h3 data-t="t1960-h">Guerra Fredda e Vietnam — droni da ricognizione</h3><p data-t="t1960-p">Gli USA usano droni Ryan Firebee per missioni di ISR (Intelligence, Surveillance, Reconnaissance) sopra territori nemici, evitando di mettere in pericolo i piloti umani. È in questi anni che i droni diventano strumenti seri di intelligence militare.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2006</div><div class="timeline-content"><h3 data-t="t2006-h">Nasce DJI</h3><p data-t="t2006-p">Frank Wang fonda DJI (Da-Jiang Innovations) a Shenzhen, Cina. L'azienda inizierà a rivoluzionare il mercato consumer dei droni, rendendo accessibile una tecnologia fino ad allora riservata a militari e professionisti.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2013</div><div class="timeline-content"><h3 data-t="t2013-h">DJI Phantom — il drone per tutti</h3><p data-t="t2013-p">Il DJI Phantom è il primo drone consumer davvero di massa. Con GPS integrato, stabilizzazione automatica e camera, apre il mercato hobbistico e professionale a milioni di persone in tutto il mondo.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2019</div><div class="timeline-content"><h3 data-t="t2019-h">Ryze Tello EDU — il drone della mia storia</h3><p data-t="t2019-p">Ryze Tech, con il supporto di DJI e Intel, lancia il Tello EDU: versione educativa del Tello con SDK aperto per Python, Swift e Scratch. È il drone con cui ho iniziato il mio percorso.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year" data-t="oggi">Oggi</div><div class="timeline-content"><h3 data-t="toggi-h">AI, autonomia e nuove normative</h3><p data-t="toggi-p">I droni moderni integrano AI per evitare ostacoli, fare SLAM (Simultaneous Localization And Mapping) e volare in modo autonomo. L'EASA ha introdotto il regolamento U-Space per gestire il traffico aereo dei droni su scala europea.</p></div></div>
     </div>
   </div>
 
   <!-- PROGRAMMAZIONE -->
   <div id="programmazione" class="page">
     <div class="page-header">
-      <div class="page-label">Sviluppo software</div>
-      <h1>Programmazione</h1>
+      <div class="page-label" data-t="prog-label">Sviluppo software</div>
+      <h1 data-t="prog-h1">Programmazione</h1>
     </div>
     <div class="intro-text" style="margin-bottom:1.5rem;">
-      <p>Programmare il Tello EDU in Python è stata la parte più stimolante del mio percorso. Si usa la libreria <strong>djitellopy</strong>, un wrapper Python (un "involucro" di codice che semplifica l'uso di funzioni complesse) che gestisce in modo trasparente tutta la comunicazione UDP (User Datagram Protocol — protocollo di trasmissione dati su rete) con il drone. Ogni comando viene inviato via socket (canale di comunicazione di rete) alla porta 8889 del Tello, e i <code>time.sleep()</code> sono necessari perché il drone deve completare il movimento prima di ricevere il comando successivo.</p>
-      <p>Questo primo script è stato il punto di partenza: semplice, lineare, utile per capire la struttura di base della comunicazione con il drone.</p>
+      <p data-t="prog-intro1">Programmare il Tello EDU in Python è stata la parte più stimolante del mio percorso. Si usa la libreria <strong>djitellopy</strong>, un wrapper Python (un "involucro" di codice che semplifica l'uso di funzioni complesse) che gestisce in modo trasparente tutta la comunicazione UDP (User Datagram Protocol — protocollo di trasmissione dati su rete) con il drone. Ogni comando viene inviato via socket (canale di comunicazione di rete) alla porta 8889 del Tello, e i <code>time.sleep()</code> sono necessari perché il drone deve completare il movimento prima di ricevere il comando successivo.</p>
+      <p data-t="prog-intro2">Questo primo script è stato il punto di partenza: semplice, lineare, utile per capire la struttura di base della comunicazione con il drone.</p>
     </div>
 
-    <h2 class="section-title">Versione iniziale — Volo quadrato autonomo</h2>
+    <h2 class="section-title" data-t="v1-title">Versione iniziale — Volo quadrato autonomo</h2>
     <span class="version-tag">v1.0</span>
     <pre><code class="language-python">
 # ============================================================
@@ -698,44 +725,23 @@ else:
     tello.end()               # chiudi connessione UDP
     print("Volo completato!")
     </code></pre>
-    <p class="code-note">⚠️ Esegui sempre in spazio aperto, con batteria carica e pavimento libero da ostacoli.</p>
+    <p class="code-note" data-t="code-note1">⚠️ Esegui sempre in spazio aperto, con batteria carica e pavimento libero da ostacoli.</p>
 
-    <h2 class="section-title">Versione finale — Controller con GUI e video in tempo reale</h2>
+    <h2 class="section-title" data-t="v2-title">Versione finale — Controller con GUI e video in tempo reale</h2>
     <span class="version-tag v2">v2.0 — Open Day</span>
     <div class="intro-text" style="margin-bottom:1.8rem; margin-top:1rem;">
-      <p>Dopo i primi tentativi con lo script di volo autonomo, ho capito che per gli <strong>Open Day scolastici</strong> avevo bisogno di qualcosa di completamente diverso: uno strumento che permettesse a chiunque — anche chi non sa programmare — di interagire con il drone in modo intuitivo e sicuro. Così ho riscritto tutto da zero, aggiungendo un'interfaccia grafica (<strong>GUI</strong>, Graphical User Interface) costruita con <strong>Tkinter</strong>, lo streaming video in tempo reale tramite <strong>OpenCV</strong> e il controllo da tastiera in tempo reale.</p>
-      <p>Le differenze rispetto alla versione iniziale sono sostanziali. Ecco le principali novità e i ragionamenti dietro a ciascuna:</p>
+      <p data-t="v2-intro1">Dopo i primi tentativi con lo script di volo autonomo, ho capito che per gli <strong>Open Day scolastici</strong> avevo bisogno di qualcosa di completamente diverso: uno strumento che permettesse a chiunque — anche chi non sa programmare — di interagire con il drone in modo intuitivo e sicuro. Così ho riscritto tutto da zero, aggiungendo un'interfaccia grafica (<strong>GUI</strong>, Graphical User Interface) costruita con <strong>Tkinter</strong>, lo streaming video in tempo reale tramite <strong>OpenCV</strong> e il controllo da tastiera in tempo reale.</p>
+      <p data-t="v2-intro2">Le differenze rispetto alla versione iniziale sono sostanziali. Ecco le principali novità e i ragionamenti dietro a ciascuna:</p>
     </div>
 
     <div class="skill-list" style="margin-bottom:2rem;">
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Streaming video live con OpenCV:</strong> il metodo <code>drone.get_frame_read().frame</code> cattura ogni fotogramma dalla camera del Tello. Il frame viene convertito da BGR a RGB — i due formati si distinguono per l'ordine dei canali colore (Blue-Green-Red vs Red-Green-Blue) — poi ridimensionato a 720×540 pixel e aggiornato sul Canvas Tkinter ogni 30 ms tramite <code>root.after(30, update_video)</code>. Il richiamo ricorsivo di questa funzione è necessario perché Tkinter non supporta thread separati per l'aggiornamento dell'interfaccia grafica.</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Interfaccia grafica Tkinter con layout a due colonne:</strong> la GUI è divisa in due aree — a sinistra il video dal vivo, a destra i pulsanti di controllo disposti a griglia 3×3. Questo layout è stato progettato pensando alle persone che si avvicinavano al drone durante l'Open Day senza alcuna conoscenza tecnica: ogni pulsante ha un'etichetta in italiano e la posizione segue la logica direzionale (Avanti in alto, Indietro in basso, Sinistra e Destra ai lati).</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Controllo da tastiera in tempo reale:</strong> ho aggiunto un gestore di eventi <code>root.bind("&lt;KeyPress&gt;", keydown)</code> che intercetta i tasti WASD per il movimento, Q/E per le rotazioni orarie e antiorarie, Spazio per il decollo e J per l'atterraggio. Questo permette a chi conosce già i videogiochi di pilotare il drone con un layout familiare senza toccare il mouse.</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Monitoraggio batteria in tempo reale:</strong> con <code>root.after(1000, update_battery)</code> il livello di batteria viene aggiornato ogni secondo nell'interfaccia. Questa funzionalità è nata da un'esperienza pratica: durante uno dei primi test il drone si era spento improvvisamente per batteria scarica. Avere il dato sempre visibile sullo schermo evita brutte sorprese, specialmente in un ambiente affollato come un Open Day.</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Funzione <code>send_command()</code> con ritardo controllato:</strong> ogni comando di movimento passa attraverso questa funzione, che aggiunge un <code>time.sleep(0.1)</code> prima dell'invio al drone. Questo piccolo ritardo di 100 ms evita la saturazione del buffer UDP quando più comandi vengono inviati in rapida successione — un problema che ho scoperto durante i test, quando premendo più tasti velocemente il drone si bloccava o eseguiva comandi in ordine sbagliato.</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Eliminazione del loop autonomo:</strong> nella v1.0 il drone eseguiva una sequenza di movimenti pre-programmata senza intervento umano. Nella versione finale tutta la logica è interattiva: nessun movimento avviene senza un input esplicito da tastiera o da pulsante. Questo cambiamento rende il sistema molto più sicuro in un contesto pubblico, dove non si può prevedere cosa succede attorno al drone.</div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-dot"></div>
-        <div><strong>Importazione di <code>threading</code>:</strong> ho incluso il modulo anche se non usato direttamente nel loop principale, in preparazione a un'eventuale gestione parallela dei thread per i comandi di movimento. In alcuni test avanzati ho sperimentato l'esecuzione dei comandi di volo in un thread separato per non bloccare il refresh del video, ma per la versione Open Day ho mantenuto la struttura più semplice.</div>
-      </div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill1"><strong>Streaming video live con OpenCV:</strong> il metodo <code>drone.get_frame_read().frame</code> cattura ogni fotogramma dalla camera del Tello. Il frame viene convertito da BGR a RGB — i due formati si distinguono per l'ordine dei canali colore (Blue-Green-Red vs Red-Green-Blue) — poi ridimensionato a 720×540 pixel e aggiornato sul Canvas Tkinter ogni 30 ms tramite <code>root.after(30, update_video)</code>. Il richiamo ricorsivo di questa funzione è necessario perché Tkinter non supporta thread separati per l'aggiornamento dell'interfaccia grafica.</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill2"><strong>Interfaccia grafica Tkinter con layout a due colonne:</strong> la GUI è divisa in due aree — a sinistra il video dal vivo, a destra i pulsanti di controllo disposti a griglia 3×3. Questo layout è stato progettato pensando alle persone che si avvicinavano al drone durante l'Open Day senza alcuna conoscenza tecnica: ogni pulsante ha un'etichetta in italiano e la posizione segue la logica direzionale (Avanti in alto, Indietro in basso, Sinistra e Destra ai lati).</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill3"><strong>Controllo da tastiera in tempo reale:</strong> ho aggiunto un gestore di eventi <code>root.bind("&lt;KeyPress&gt;", keydown)</code> che intercetta i tasti WASD per il movimento, Q/E per le rotazioni orarie e antiorarie, Spazio per il decollo e J per l'atterraggio. Questo permette a chi conosce già i videogiochi di pilotare il drone con un layout familiare senza toccare il mouse.</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill4"><strong>Monitoraggio batteria in tempo reale:</strong> con <code>root.after(1000, update_battery)</code> il livello di batteria viene aggiornato ogni secondo nell'interfaccia. Questa funzionalità è nata da un'esperienza pratica: durante uno dei primi test il drone si era spento improvvisamente per batteria scarica. Avere il dato sempre visibile sullo schermo evita brutte sorprese, specialmente in un ambiente affollato come un Open Day.</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill5"><strong>Funzione <code>send_command()</code> con ritardo controllato:</strong> ogni comando di movimento passa attraverso questa funzione, che aggiunge un <code>time.sleep(0.1)</code> prima dell'invio al drone. Questo piccolo ritardo di 100 ms evita la saturazione del buffer UDP quando più comandi vengono inviati in rapida successione — un problema che ho scoperto durante i test, quando premendo più tasti velocemente il drone si bloccava o eseguiva comandi in ordine sbagliato.</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill6"><strong>Eliminazione del loop autonomo:</strong> nella v1.0 il drone eseguiva una sequenza di movimenti pre-programmata senza intervento umano. Nella versione finale tutta la logica è interattiva: nessun movimento avviene senza un input esplicito da tastiera o da pulsante. Questo cambiamento rende il sistema molto più sicuro in un contesto pubblico, dove non si può prevedere cosa succede attorno al drone.</div></div>
+      <div class="skill-item"><div class="skill-dot"></div><div data-t="skill7"><strong>Importazione di <code>threading</code>:</strong> ho incluso il modulo anche se non usato direttamente nel loop principale, in preparazione a un'eventuale gestione parallela dei thread per i comandi di movimento. In alcuni test avanzati ho sperimentato l'esecuzione dei comandi di volo in un thread separato per non bloccare il refresh del video, ma per la versione Open Day ho mantenuto la struttura più semplice.</div></div>
     </div>
 
     <pre><code class="language-python">
@@ -872,7 +878,6 @@ button_style = {
     "bd": 3, "relief": "raised"
 }
 
-# (testo, funzione, riga, colonna) — griglia 3x3 intuitiva
 buttons = [
     ("Decolla",   takeoff,                  0, 1),
     ("Atterra",   land,                     1, 1),
@@ -896,39 +901,39 @@ update_video()
 update_battery()
 root.mainloop()
     </code></pre>
-    <p class="code-note">⚠️ Richiede: <code>pip install djitellopy opencv-python pillow</code> — Connettiti al Wi-Fi del Tello prima di avviare lo script.</p>
+    <p class="code-note" data-t="code-note2">⚠️ Richiede: <code>pip install djitellopy opencv-python pillow</code> — Connettiti al Wi-Fi del Tello prima di avviare lo script.</p>
 
-    <h2 class="section-title">Cosa ho imparato programmando</h2>
+    <h2 class="section-title" data-t="learned-title">Cosa ho imparato programmando</h2>
     <div class="intro-text">
-      <p>Programmare il drone mi ha mostrato e dato emozioni che nessun tutorial avrebbe potuto darmi allo stesso modo. Il primo grande ostacolo è stato capire perché il drone non decollava: il problema era un timeout UDP, cioè la connessione di rete smetteva di rispondere prima che il comando arrivasse. Per risolverlo ho dovuto studiare come funzionano i socket, qualcosa che non avevo mai affrontato prima. Un altro problema inaspettato è stato il movimento laterale del drone: anche dando il comando "move_forward", scivolava di lato. Ho scoperto che persino una leggera corrente d'aria in una stanza chiusa è sufficiente a influenzare la telemetria, cioè i dati trasmessi dal drone in tempo reale come altitudine, velocità e temperatura della batteria.</p>
-      <p>Con il tempo ho iniziato a costruire sequenze di volo più complesse. Ogni errore mi ha insegnato qualcosa di nuovo sul rapporto tra codice e hardware fisico.La versione che ho preparato per l'Open Day è stata però la lezione più importante: ho capito quanto sia diverso scrivere codice per sé stessi rispetto a scrivere codice che deve essere usato da altri. L'interfaccia deve essere chiara, i comandi devono essere sicuri, e ogni possibile errore deve essere gestito prima ancora che si verifichi.</p>
+      <p data-t="learned-p1">Programmare il drone mi ha mostrato e dato emozioni che nessun tutorial avrebbe potuto darmi allo stesso modo. Il primo grande ostacolo è stato capire perché il drone non decollava: il problema era un timeout UDP, cioè la connessione di rete smetteva di rispondere prima che il comando arrivasse. Per risolverlo ho dovuto studiare come funzionano i socket, qualcosa che non avevo mai affrontato prima. Un altro problema inaspettato è stato il movimento laterale del drone: anche dando il comando "move_forward", scivolava di lato. Ho scoperto che persino una leggera corrente d'aria in una stanza chiusa è sufficiente a influenzare la telemetria, cioè i dati trasmessi dal drone in tempo reale come altitudine, velocità e temperatura della batteria.</p>
+      <p data-t="learned-p2">Con il tempo ho iniziato a costruire sequenze di volo più complesse. Ogni errore mi ha insegnato qualcosa di nuovo sul rapporto tra codice e hardware fisico. La versione che ho preparato per l'Open Day è stata però la lezione più importante: ho capito quanto sia diverso scrivere codice per sé stessi rispetto a scrivere codice che deve essere usato da altri. L'interfaccia deve essere chiara, i comandi devono essere sicuri, e ogni possibile errore deve essere gestito prima ancora che si verifichi.</p>
     </div>
   </div>
 
   <!-- EPILOGO -->
   <div id="epilogo" class="page">
     <div class="page-header">
-      <div class="page-label">Conclusioni</div>
-      <h1>Quello che ho imparato</h1>
+      <div class="page-label" data-t="epilogo-label">Conclusioni</div>
+      <h1 data-t="epilogo-h1">Quello che ho imparato</h1>
     </div>
     <div class="intro-text">
-      <p>Arrivato al quinto anno, guardandomi indietro, sono sorpreso da quanto sia cambiata la mia visione di questa tecnologia. Quando ho iniziato, il drone era per me solo un giocattolo volante. Oggi lo vedo come un sistema cyber-fisico (un sistema che unisce hardware fisico e software informatico) con regole precise, requisiti di sicurezza seri e un potenziale enorme in tanti settori.</p>
-      <p>Non posso dire di essere diventato un esperto. Sono uno studente, e so bene quanto ci sia ancora da imparare. Ma so anche che due anni fa non sapevo nulla di UDP, di IMU, di normative ENAC o di gimbal. Oggi almeno so cosa cercare, so fare le domande giuste e so dove trovare le risposte. E questa, credo, sia la competenza più importante che si possa acquisire in un istituto tecnico.</p>
-      <p>Il codice che ho scritto non è perfetto. Le mie conoscenze di aerodinamica sono basilari. Però ogni volta che ho visto il Tello decollare seguendo esattamente le istruzioni che avevo scritto io, ho capito perché vale la pena studiare informatica: perché trasforma le idee in qualcosa di reale e concreto.</p>
-      <p>Dopo il diploma voglio continuare a esplorare questo settore, magari approfondendo la parte di autonomous systems (sistemi autonomi) e computer vision (visione artificiale). Il percorso è lungo, ma almeno so da dove sono partito e in quale direzione voglio andare.</p>
+      <p data-t="epilogo-p1">Arrivato al quinto anno, guardandomi indietro, sono sorpreso da quanto sia cambiata la mia visione di questa tecnologia. Quando ho iniziato, il drone era per me solo un giocattolo volante. Oggi lo vedo come un sistema cyber-fisico (un sistema che unisce hardware fisico e software informatico) con regole precise, requisiti di sicurezza seri e un potenziale enorme in tanti settori.</p>
+      <p data-t="epilogo-p2">Non posso dire di essere diventato un esperto. Sono uno studente, e so bene quanto ci sia ancora da imparare. Ma so anche che due anni fa non sapevo nulla di UDP, di IMU, di normative ENAC o di gimbal. Oggi almeno so cosa cercare, so fare le domande giuste e so dove trovare le risposte. E questa, credo, sia la competenza più importante che si possa acquisire in un istituto tecnico.</p>
+      <p data-t="epilogo-p3">Il codice che ho scritto non è perfetto. Le mie conoscenze di aerodinamica sono basilari. Però ogni volta che ho visto il Tello decollare seguendo esattamente le istruzioni che avevo scritto io, ho capito perché vale la pena studiare informatica: perché trasforma le idee in qualcosa di reale e concreto.</p>
+      <p data-t="epilogo-p4">Dopo il diploma voglio continuare a esplorare questo settore, magari approfondendo la parte di autonomous systems (sistemi autonomi) e computer vision (visione artificiale). Il percorso è lungo, ma almeno so da dove sono partito e in quale direzione voglio andare.</p>
     </div>
 
-    <h2 class="section-title">Competenze acquisite</h2>
+    <h2 class="section-title" data-t="skills-title">Competenze acquisite</h2>
     <div class="skill-list">
-      <div class="skill-item"><div class="skill-dot"></div>Programmazione Python e uso di librerie esterne (djitellopy, OpenCV, Tkinter, Pillow)</div>
-      <div class="skill-item"><div class="skill-dot"></div>Comprensione dei protocolli di rete UDP e TCP/IP</div>
-      <div class="skill-item"><div class="skill-dot"></div>Lettura e interpretazione della telemetria (dati di stato) del drone in tempo reale</div>
-      <div class="skill-item"><div class="skill-dot"></div>Sviluppo di interfacce grafiche con Tkinter e gestione di eventi da tastiera</div>
-      <div class="skill-item"><div class="skill-dot"></div>Acquisizione e visualizzazione di stream video con OpenCV in un'applicazione desktop</div>
-      <div class="skill-item"><div class="skill-dot"></div>Conoscenza delle normative ENAC / EASA per i droni civili in Europa</div>
-      <div class="skill-item"><div class="skill-dot"></div>Basi di aerodinamica: portanza, spinta, resistenza e i tre assi di rotazione (rollio, beccheggio, imbardata)</div>
-      <div class="skill-item"><div class="skill-dot"></div>Debugging (ricerca e correzione di errori) su sistemi hardware + software</div>
-      <div class="skill-item"><div class="skill-dot"></div>Documentazione tecnica di un progetto in modo chiaro e comprensibile</div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a1">Programmazione Python e uso di librerie esterne (djitellopy, OpenCV, Tkinter, Pillow)</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a2">Comprensione dei protocolli di rete UDP e TCP/IP</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a3">Lettura e interpretazione della telemetria (dati di stato) del drone in tempo reale</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a4">Sviluppo di interfacce grafiche con Tkinter e gestione di eventi da tastiera</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a5">Acquisizione e visualizzazione di stream video con OpenCV in un'applicazione desktop</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a6">Conoscenza delle normative ENAC / EASA per i droni civili in Europa</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a7">Basi di aerodinamica: portanza, spinta, resistenza e i tre assi di rotazione (rollio, beccheggio, imbardata)</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a8">Debugging (ricerca e correzione di errori) su sistemi hardware + software</span></div>
+      <div class="skill-item"><div class="skill-dot"></div><span data-t="skill-a9">Documentazione tecnica di un progetto in modo chiaro e comprensibile</span></div>
     </div>
     <p style="margin-top:2.5rem; font-size:0.82rem; color:var(--gray);">Nicolò Faustini – 5AI – Anno scolastico 2025/2026</p>
   </div>
@@ -940,7 +945,307 @@ root.mainloop()
 </footer>
 
 <script>
-  /* ---- SIDEBAR ---- */
+  /* ================================================================
+     TRANSLATIONS
+  ================================================================ */
+  const translations = {
+    it: {
+      /* sidebar */
+      "nav-intro":    "Introduzione",
+      "nav-droni":    "I miei droni",
+      "nav-info":     "Come funzionano",
+      "nav-storia":   "Storia",
+      "nav-prog":     "Programmazione",
+      "nav-epilogo":  "Epilogo",
+      /* intro page */
+      "intro-label":  "Presentazione",
+      "intro-h1":     "Il mio percorso<br>nei droni",
+      "intro-p1":     "Mi chiamo <strong>Nicolò Faustini</strong>, sono uno studente del quinto anno dell'Istituto Tecnico Tecnologico, indirizzo informatica, classe 5AI. Questo sito racconta un percorso che ho iniziato quasi per caso due anni fa, quando a scuola ci hanno messo in mano un piccolo drone chiamato <strong>Ryze Tello EDU</strong> e ci hanno detto: \"programmatelo\". Da quel momento non mi sono più fermato.",
+      "intro-p2":     "All'inizio non sapevo quasi nulla di droni. Sapevo che erano quei dispositivi volanti che si vedono nei video su YouTube, ma non immaginavo quanto ci fosse dietro: fisica, elettronica, codice, normative, aerodinamica. Piano piano ho iniziato a capire come funzionano davvero, prima studiando le basi del volo, poi imparando a programmarli con <strong>Python</strong>, uno dei linguaggi di programmazione più diffusi al mondo.",
+      "intro-p3":     "In questi due anni ho scritto decine di script (file di codice), ho fatto volare il drone seguendo traiettorie geometriche, ho capito cosa vuol dire fare debugging (trovare e correggere errori nel codice) quando il drone non decolla come ti aspetti. Ho imparato a leggere i log di sistema, a gestire i timeout (scadenze del tempo di attesa nelle comunicazioni di rete) e a costruire sequenze di volo automatizzate.",
+      "intro-p4":     "Ma non è solo una questione tecnica. I droni mi hanno aperto gli occhi su un settore in rapidissima crescita, che tocca la logistica, l'agricoltura, il cinema e il soccorso in emergenza. Studiare le normative ENAC (Ente Nazionale per l'Aviazione Civile) ed EASA (European Union Aviation Safety Agency — l'ente europeo per la sicurezza aerea) mi ha fatto capire quanto sia importante usare questi dispositivi in modo responsabile e consapevole.",
+      "intro-p5":     "Questo sito non è un progetto perfetto. È un work in progress, esattamente come lo sono io. Contiene le cose che ho imparato, i droni che conosco, il codice che ho scritto e le riflessioni di chi ha passato due anni a fare errori e a imparare da essi.",
+      "stat-anni":    "anni di studio",
+      "stat-classe":  "classe attuale",
+      "stat-lang":    "linguaggio usato",
+      "stat-drone":   "drone principale",
+      "intro-footer": "Anno scolastico 2025/2026 — Istituto Tecnico Tecnologico",
+      /* droni page */
+      "droni-label":  "Hardware",
+      "droni-h1":     "I miei droni",
+      "droni-intro":  "Qui racconto i tre droni che fanno parte del mio percorso: uno è quello con cui ho iniziato a scuola (fascia base), uno è quello che vorrei usare per andare un po' oltre (fascia media), e l'ultimo è quello che rappresenta il top della gamma Tello/DJI per uso educativo e hobbistico — il mio \"drone dei sogni\" al momento. Per ognuno ho messo le specifiche tecniche, una descrizione e il link per acquistarlo.",
+      "tier-entry":   "Fascia Base",
+      "tier-mid":     "Fascia Media",
+      "tier-high":    "Fascia Alta",
+      "badge-nopatent": "No patentino",
+      "badge-sdk":    "SDK avanzato",
+      "badge-tof":    "Sensore ToF",
+      "badge-exp":    "Espandibile",
+      "badge-auto":   "34 min autonomia",
+      "tello-desc":   "Il mio primo drone. È piccolo, leggero (87 g) e si controlla via Wi-Fi (rete wireless locale). La parte più interessante è il suo SDK (Software Development Kit) che permette di programmarlo in Python, Swift o Scratch. Con questo ho imparato i comandi base: decollo, atterraggio, movimenti cardinali e rotazioni. Per quanto offre, il prezzo è davvero onesto.",
+      "tt-desc":      "Il RoboMaster TT è sostanzialmente un Tello EDU potenziato: mantiene gli stessi comandi base ma aggiunge un sensore ToF (Time-of-Flight), LED RGB programmabili e una porta di espansione per sensori aggiuntivi. Ideale per chi vuole iniziare con la visione artificiale e la robotica.",
+      "mini4-desc":   "Il DJI Mini 4 Pro è attualmente uno dei migliori droni consumer sul mercato. Pesa meno di 249 g — soglia importante perché al di sotto di questo peso le normative europee prevedono meno restrizioni operative. Ha una camera con sensore CMOS da 1/1.3\" capace di girare video in 4K HDR e il sistema APAS 4.0 che evita automaticamente gli ostacoli.",
+      "spec-peso":    "Peso",
+      "spec-auto":    "Autonomia",
+      "spec-vel":     "Velocità max",
+      "spec-cam":     "Camera",
+      "spec-range":   "Range (portata)",
+      "spec-stab":    "Stabilizzazione",
+      "spec-tof":     "Sensore ToF",
+      "spec-tof-val": "Sì, portata fino a 10 m",
+      "spec-led":     "8 LED RGB programmabili",
+      "spec-gimbal":  "Gimbal",
+      "spec-gimbal-val": "3 assi — stabilizzazione meccanica",
+      "buy-btn":      "Acquista su DJI Store →",
+      /* info page */
+      "info-label":   "Tecnologia",
+      "info-h1":      "Come funzionano<br>i droni",
+      "info-intro":   "Un drone, chiamato tecnicamente UAV (Unmanned Aerial Vehicle — veicolo aereo senza pilota a bordo), è un sistema molto più complesso di quanto sembri dall'esterno. Sotto la scocca di plastica ci sono sensori, algoritmi di controllo e sistemi di comunicazione che lavorano insieme centinaia di volte al secondo. Di seguito spiego i componenti principali e come interagiscono tra loro.",
+      "fc-title":     "Flight Controller (FC)",
+      "fc-text":      "È il \"cervello\" del drone. Il FC (Flight Controller — controllore di volo) è una scheda elettronica che raccoglie i dati da tutti i sensori e calcola la velocità esatta di ciascun motore centinaia di volte al secondo per mantenere il drone stabile. Senza di esso il drone sarebbe incontrollabile.",
+      "imu-title":    "IMU — Unità di misura inerziale",
+      "imu-text":     "L'IMU (Inertial Measurement Unit) contiene accelerometri e giroscopi. Gli accelerometri misurano l'accelerazione lineare in ogni direzione, i giroscopi misurano la velocità di rotazione attorno ai tre assi: rollio (roll), beccheggio (pitch) e imbardata (yaw).",
+      "gps-title":    "GPS e GNSS",
+      "gps-text":     "Il GPS e il GNSS (Global Navigation Satellite System) permettono al drone di conoscere la propria posizione con precisione. Sono fondamentali per il volo autonomo, il return-to-home e l'hovering (volo stazionario in posizione fissa).",
+      "lipo-title":   "Batteria LiPo",
+      "lipo-text":    "I droni usano batterie LiPo (Lithium Polymer) per l'ottimo rapporto tra energia erogata e peso contenuto. Richiedono però cura: non vanno scaricate completamente, devono essere conservate alla giusta tensione e ricaricate con caricatori appositi per evitare danni o incendi.",
+      "proto-title":  "Protocolli di comunicazione",
+      "proto-text":   "Il Tello EDU comunica via Wi-Fi (IEEE 802.11n) usando UDP (User Datagram Protocol). I comandi vengono inviati sulla porta 8889, la telemetria (dati di stato del drone: altitudine, temperatura, velocità) arriva sulla porta 8890. Capire questo mi ha aiutato a scrivere script Python più stabili.",
+      "norm-title":   "Normative ENAC / EASA",
+      "norm-text":    "In Italia i droni sono regolati da ENAC (Ente Nazionale per l'Aviazione Civile) secondo le norme EASA (European Union Aviation Safety Agency). I droni sotto i 250 g come il Tello (87 g) rientrano nella Categoria Aperta A1 e possono volare senza patentino in molte situazioni. Oltre certi pesi o utilizzi servono registrazione ed esame.",
+      "gimbal-title": "Gimbal e stabilizzazione",
+      "gimbal-text":  "Il gimbal è un supporto motorizzato multi-asse che mantiene la camera sempre orizzontale indipendentemente dai movimenti del drone. I droni di fascia alta usano gimbal meccanici a 3 assi; quelli economici come il Tello usano l'EIS (Electronic Image Stabilization), che compensa digitalmente le vibrazioni in post-elaborazione.",
+      "vision-title": "Visione artificiale",
+      "vision-text":  "I droni moderni usano algoritmi di computer vision (visione artificiale) per rilevare ostacoli, riconoscere superfici e stimare la propria posizione anche senza GPS. Tecniche come VIO (Visual-Inertial Odometry) permettono un volo più preciso e sicuro in ambienti chiusi o con segnale GPS assente.",
+      /* storia */
+      "storia-label": "Contesto storico",
+      "storia-h1":    "L'evoluzione dei droni",
+      "storia-intro": "La storia dei droni è molto più lunga di quanto si pensi: non è una tecnologia degli anni 2000, le sue radici arrivano fino al XIX secolo. Conoscere questa evoluzione mi ha aiutato a capire quanto rapidamente questo settore stia ancora crescendo.",
+      "t1849-h": "I palloni bomba austriaci",
+      "t1849-p": "L'esercito austriaco utilizza palloni aerostatici carichi di esplosivo durante l'assedio di Venezia. Non erano controllati, ma rappresentano uno dei primissimi esempi di \"arma aerea senza pilota\" nella storia.",
+      "t1917-h": "Kettering Bug — il primo drone militare",
+      "t1917-p": "Gli USA sviluppano il \"Kettering Bug\", un biplano automatico guidato da un giroscopio e da un altimetro. Era programmato per percorrere una distanza precisa e poi precipitare sul bersaglio.",
+      "t1935-h": "De Havilland Queen Bee — nasce il termine \"drone\"",
+      "t1935-p": "Il britannico De Havilland Queen Bee è spesso citato come il primo UAV moderno radiocomandato. Si dice che il termine \"drone\" (fuco in inglese) derivi dal ronzio di questo velivolo durante le esercitazioni di tiro antiaereo.",
+      "t1960-h": "Guerra Fredda e Vietnam — droni da ricognizione",
+      "t1960-p": "Gli USA usano droni Ryan Firebee per missioni di ISR (Intelligence, Surveillance, Reconnaissance) sopra territori nemici, evitando di mettere in pericolo i piloti umani. È in questi anni che i droni diventano strumenti seri di intelligence militare.",
+      "t2006-h": "Nasce DJI",
+      "t2006-p": "Frank Wang fonda DJI (Da-Jiang Innovations) a Shenzhen, Cina. L'azienda inizierà a rivoluzionare il mercato consumer dei droni, rendendo accessibile una tecnologia fino ad allora riservata a militari e professionisti.",
+      "t2013-h": "DJI Phantom — il drone per tutti",
+      "t2013-p": "Il DJI Phantom è il primo drone consumer davvero di massa. Con GPS integrato, stabilizzazione automatica e camera, apre il mercato hobbistico e professionale a milioni di persone in tutto il mondo.",
+      "t2019-h": "Ryze Tello EDU — il drone della mia storia",
+      "t2019-p": "Ryze Tech, con il supporto di DJI e Intel, lancia il Tello EDU: versione educativa del Tello con SDK aperto per Python, Swift e Scratch. È il drone con cui ho iniziato il mio percorso.",
+      "oggi":    "Oggi",
+      "toggi-h": "AI, autonomia e nuove normative",
+      "toggi-p": "I droni moderni integrano AI per evitare ostacoli, fare SLAM (Simultaneous Localization And Mapping) e volare in modo autonomo. L'EASA ha introdotto il regolamento U-Space per gestire il traffico aereo dei droni su scala europea.",
+      /* programmazione */
+      "prog-label":  "Sviluppo software",
+      "prog-h1":     "Programmazione",
+      "prog-intro1": "Programmare il Tello EDU in Python è stata la parte più stimolante del mio percorso. Si usa la libreria <strong>djitellopy</strong>, un wrapper Python (un \"involucro\" di codice che semplifica l'uso di funzioni complesse) che gestisce in modo trasparente tutta la comunicazione UDP (User Datagram Protocol — protocollo di trasmissione dati su rete) con il drone. Ogni comando viene inviato via socket (canale di comunicazione di rete) alla porta 8889 del Tello, e i <code>time.sleep()</code> sono necessari perché il drone deve completare il movimento prima di ricevere il comando successivo.",
+      "prog-intro2": "Questo primo script è stato il punto di partenza: semplice, lineare, utile per capire la struttura di base della comunicazione con il drone.",
+      "v1-title":    "Versione iniziale — Volo quadrato autonomo",
+      "code-note1":  "⚠️ Esegui sempre in spazio aperto, con batteria carica e pavimento libero da ostacoli.",
+      "v2-title":    "Versione finale — Controller con GUI e video in tempo reale",
+      "v2-intro1":   "Dopo i primi tentativi con lo script di volo autonomo, ho capito che per gli <strong>Open Day scolastici</strong> avevo bisogno di qualcosa di completamente diverso: uno strumento che permettesse a chiunque — anche chi non sa programmare — di interagire con il drone in modo intuitivo e sicuro. Così ho riscritto tutto da zero, aggiungendo un'interfaccia grafica (<strong>GUI</strong>, Graphical User Interface) costruita con <strong>Tkinter</strong>, lo streaming video in tempo reale tramite <strong>OpenCV</strong> e il controllo da tastiera in tempo reale.",
+      "v2-intro2":   "Le differenze rispetto alla versione iniziale sono sostanziali. Ecco le principali novità e i ragionamenti dietro a ciascuna:",
+      "skill1": "<strong>Streaming video live con OpenCV:</strong> il metodo <code>drone.get_frame_read().frame</code> cattura ogni fotogramma dalla camera del Tello. Il frame viene convertito da BGR a RGB — i due formati si distinguono per l'ordine dei canali colore (Blue-Green-Red vs Red-Green-Blue) — poi ridimensionato a 720×540 pixel e aggiornato sul Canvas Tkinter ogni 30 ms tramite <code>root.after(30, update_video)</code>. Il richiamo ricorsivo di questa funzione è necessario perché Tkinter non supporta thread separati per l'aggiornamento dell'interfaccia grafica.",
+      "skill2": "<strong>Interfaccia grafica Tkinter con layout a due colonne:</strong> la GUI è divisa in due aree — a sinistra il video dal vivo, a destra i pulsanti di controllo disposti a griglia 3×3. Questo layout è stato progettato pensando alle persone che si avvicinavano al drone durante l'Open Day senza alcuna conoscenza tecnica: ogni pulsante ha un'etichetta in italiano e la posizione segue la logica direzionale (Avanti in alto, Indietro in basso, Sinistra e Destra ai lati).",
+      "skill3": "<strong>Controllo da tastiera in tempo reale:</strong> ho aggiunto un gestore di eventi <code>root.bind(\"&lt;KeyPress&gt;\", keydown)</code> che intercetta i tasti WASD per il movimento, Q/E per le rotazioni orarie e antiorarie, Spazio per il decollo e J per l'atterraggio. Questo permette a chi conosce già i videogiochi di pilotare il drone con un layout familiare senza toccare il mouse.",
+      "skill4": "<strong>Monitoraggio batteria in tempo reale:</strong> con <code>root.after(1000, update_battery)</code> il livello di batteria viene aggiornato ogni secondo nell'interfaccia. Questa funzionalità è nata da un'esperienza pratica: durante uno dei primi test il drone si era spento improvvisamente per batteria scarica. Avere il dato sempre visibile sullo schermo evita brutte sorprese, specialmente in un ambiente affollato come un Open Day.",
+      "skill5": "<strong>Funzione <code>send_command()</code> con ritardo controllato:</strong> ogni comando di movimento passa attraverso questa funzione, che aggiunge un <code>time.sleep(0.1)</code> prima dell'invio al drone. Questo piccolo ritardo di 100 ms evita la saturazione del buffer UDP quando più comandi vengono inviati in rapida successione — un problema che ho scoperto durante i test, quando premendo più tasti velocemente il drone si bloccava o eseguiva comandi in ordine sbagliato.",
+      "skill6": "<strong>Eliminazione del loop autonomo:</strong> nella v1.0 il drone eseguiva una sequenza di movimenti pre-programmata senza intervento umano. Nella versione finale tutta la logica è interattiva: nessun movimento avviene senza un input esplicito da tastiera o da pulsante. Questo cambiamento rende il sistema molto più sicuro in un contesto pubblico, dove non si può prevedere cosa succede attorno al drone.",
+      "skill7": "<strong>Importazione di <code>threading</code>:</strong> ho incluso il modulo anche se non usato direttamente nel loop principale, in preparazione a un'eventuale gestione parallela dei thread per i comandi di movimento. In alcuni test avanzati ho sperimentato l'esecuzione dei comandi di volo in un thread separato per non bloccare il refresh del video, ma per la versione Open Day ho mantenuto la struttura più semplice.",
+      "code-note2":  "⚠️ Richiede: <code>pip install djitellopy opencv-python pillow</code> — Connettiti al Wi-Fi del Tello prima di avviare lo script.",
+      "learned-title": "Cosa ho imparato programmando",
+      "learned-p1":  "Programmare il drone mi ha mostrato e dato emozioni che nessun tutorial avrebbe potuto darmi allo stesso modo. Il primo grande ostacolo è stato capire perché il drone non decollava: il problema era un timeout UDP, cioè la connessione di rete smetteva di rispondere prima che il comando arrivasse. Per risolverlo ho dovuto studiare come funzionano i socket, qualcosa che non avevo mai affrontato prima. Un altro problema inaspettato è stato il movimento laterale del drone: anche dando il comando \"move_forward\", scivolava di lato. Ho scoperto che persino una leggera corrente d'aria in una stanza chiusa è sufficiente a influenzare la telemetria, cioè i dati trasmessi dal drone in tempo reale come altitudine, velocità e temperatura della batteria.",
+      "learned-p2":  "Con il tempo ho iniziato a costruire sequenze di volo più complesse. Ogni errore mi ha insegnato qualcosa di nuovo sul rapporto tra codice e hardware fisico. La versione che ho preparato per l'Open Day è stata però la lezione più importante: ho capito quanto sia diverso scrivere codice per sé stessi rispetto a scrivere codice che deve essere usato da altri. L'interfaccia deve essere chiara, i comandi devono essere sicuri, e ogni possibile errore deve essere gestito prima ancora che si verifichi.",
+      /* epilogo */
+      "epilogo-label": "Conclusioni",
+      "epilogo-h1":  "Quello che ho imparato",
+      "epilogo-p1":  "Arrivato al quinto anno, guardandomi indietro, sono sorpreso da quanto sia cambiata la mia visione di questa tecnologia. Quando ho iniziato, il drone era per me solo un giocattolo volante. Oggi lo vedo come un sistema cyber-fisico (un sistema che unisce hardware fisico e software informatico) con regole precise, requisiti di sicurezza seri e un potenziale enorme in tanti settori.",
+      "epilogo-p2":  "Non posso dire di essere diventato un esperto. Sono uno studente, e so bene quanto ci sia ancora da imparare. Ma so anche che due anni fa non sapevo nulla di UDP, di IMU, di normative ENAC o di gimbal. Oggi almeno so cosa cercare, so fare le domande giuste e so dove trovare le risposte. E questa, credo, sia la competenza più importante che si possa acquisire in un istituto tecnico.",
+      "epilogo-p3":  "Il codice che ho scritto non è perfetto. Le mie conoscenze di aerodinamica sono basilari. Però ogni volta che ho visto il Tello decollare seguendo esattamente le istruzioni che avevo scritto io, ho capito perché vale la pena studiare informatica: perché trasforma le idee in qualcosa di reale e concreto.",
+      "epilogo-p4":  "Dopo il diploma voglio continuare a esplorare questo settore, magari approfondendo la parte di autonomous systems (sistemi autonomi) e computer vision (visione artificiale). Il percorso è lungo, ma almeno so da dove sono partito e in quale direzione voglio andare.",
+      "skills-title": "Competenze acquisite",
+      "skill-a1": "Programmazione Python e uso di librerie esterne (djitellopy, OpenCV, Tkinter, Pillow)",
+      "skill-a2": "Comprensione dei protocolli di rete UDP e TCP/IP",
+      "skill-a3": "Lettura e interpretazione della telemetria (dati di stato) del drone in tempo reale",
+      "skill-a4": "Sviluppo di interfacce grafiche con Tkinter e gestione di eventi da tastiera",
+      "skill-a5": "Acquisizione e visualizzazione di stream video con OpenCV in un'applicazione desktop",
+      "skill-a6": "Conoscenza delle normative ENAC / EASA per i droni civili in Europa",
+      "skill-a7": "Basi di aerodinamica: portanza, spinta, resistenza e i tre assi di rotazione (rollio, beccheggio, imbardata)",
+      "skill-a8": "Debugging (ricerca e correzione di errori) su sistemi hardware + software",
+      "skill-a9": "Documentazione tecnica di un progetto in modo chiaro e comprensibile",
+    },
+    en: {
+      /* sidebar */
+      "nav-intro":    "Introduction",
+      "nav-droni":    "My drones",
+      "nav-info":     "How they work",
+      "nav-storia":   "History",
+      "nav-prog":     "Programming",
+      "nav-epilogo":  "Epilogue",
+      /* intro page */
+      "intro-label":  "Presentation",
+      "intro-h1":     "My journey<br>into drones",
+      "intro-p1":     "My name is <strong>Nicolò Faustini</strong>, I am a fifth-year student at the Istituto Tecnico Tecnologico, computer science track, class 5AI. This website tells the story of a journey I started almost by chance two years ago, when at school we were handed a small drone called the <strong>Ryze Tello EDU</strong> and told: \"program it\". From that moment on, I never stopped.",
+      "intro-p2":     "At first I knew almost nothing about drones. I knew they were those flying devices you see in YouTube videos, but I had no idea how much was behind them: physics, electronics, code, regulations, aerodynamics. Gradually I started to understand how they actually work — first by studying the basics of flight, then by learning to program them with <strong>Python</strong>, one of the most widely used programming languages in the world.",
+      "intro-p3":     "Over these two years I wrote dozens of scripts (code files), made the drone fly along geometric paths, and understood what debugging (finding and fixing errors in code) really means when the drone doesn't take off as expected. I learned to read system logs, handle timeouts (network communication wait-time limits), and build automated flight sequences.",
+      "intro-p4":     "But it's not just a technical matter. Drones have opened my eyes to a rapidly growing industry that touches logistics, agriculture, film and emergency rescue. Studying ENAC (Italy's Civil Aviation Authority) and EASA (European Union Aviation Safety Agency) regulations made me understand how important it is to use these devices responsibly and consciously.",
+      "intro-p5":     "This website is not a perfect project. It's a work in progress, just like I am. It contains what I have learned, the drones I know, the code I have written, and the reflections of someone who has spent two years making mistakes and learning from them.",
+      "stat-anni":    "years of study",
+      "stat-classe":  "current class",
+      "stat-lang":    "language used",
+      "stat-drone":   "main drone",
+      "intro-footer": "School year 2025/2026 — Technical Institute of Technology",
+      /* droni page */
+      "droni-label":  "Hardware",
+      "droni-h1":     "My drones",
+      "droni-intro":  "Here I describe the three drones that are part of my journey: one is the entry-level drone I started with at school, one is the mid-range drone I would like to move on to, and the last is the top of the Tello/DJI range for educational and hobbyist use — my \"dream drone\" at the moment. For each one I have included technical specs, a description, and a purchase link.",
+      "tier-entry":   "Entry Level",
+      "tier-mid":     "Mid Range",
+      "tier-high":    "High End",
+      "badge-nopatent": "No license needed",
+      "badge-sdk":    "Advanced SDK",
+      "badge-tof":    "ToF sensor",
+      "badge-exp":    "Expandable",
+      "badge-auto":   "34 min battery",
+      "tello-desc":   "My first drone. It is small, light (87 g) and controlled via Wi-Fi (local wireless network). The most interesting part is its SDK (Software Development Kit) which allows programming in Python, Swift or Scratch. With this I learned the basic commands: takeoff, landing, cardinal movements and rotations. For what it offers, the price is really fair.",
+      "tt-desc":      "The RoboMaster TT is essentially an upgraded Tello EDU: it keeps the same basic commands but adds a ToF (Time-of-Flight) sensor, programmable RGB LEDs, and an expansion port for additional sensors. Ideal for those who want to get started with computer vision and robotics.",
+      "mini4-desc":   "The DJI Mini 4 Pro is currently one of the best consumer drones on the market. It weighs less than 249 g — an important threshold because below this weight European regulations impose fewer operational restrictions. It has a camera with a 1/1.3\" CMOS sensor capable of shooting 4K HDR video and the APAS 4.0 system that automatically avoids obstacles.",
+      "spec-peso":    "Weight",
+      "spec-auto":    "Battery life",
+      "spec-vel":     "Max speed",
+      "spec-cam":     "Camera",
+      "spec-range":   "Range",
+      "spec-stab":    "Stabilization",
+      "spec-tof":     "ToF sensor",
+      "spec-tof-val": "Yes, range up to 10 m",
+      "spec-led":     "8 programmable RGB LEDs",
+      "spec-gimbal":  "Gimbal",
+      "spec-gimbal-val": "3-axis — mechanical stabilization",
+      "buy-btn":      "Buy on DJI Store →",
+      /* info page */
+      "info-label":   "Technology",
+      "info-h1":      "How drones<br>work",
+      "info-intro":   "A drone, technically called a UAV (Unmanned Aerial Vehicle), is a far more complex system than it appears from the outside. Under the plastic shell there are sensors, control algorithms and communication systems working together hundreds of times per second. Below I explain the main components and how they interact.",
+      "fc-title":     "Flight Controller (FC)",
+      "fc-text":      "It is the drone's \"brain\". The FC (Flight Controller) is an electronic board that collects data from all sensors and calculates the exact speed of each motor hundreds of times per second to keep the drone stable. Without it the drone would be uncontrollable.",
+      "imu-title":    "IMU — Inertial Measurement Unit",
+      "imu-text":     "The IMU (Inertial Measurement Unit) contains accelerometers and gyroscopes. Accelerometers measure linear acceleration in every direction; gyroscopes measure the rotation rate around three axes: roll, pitch and yaw.",
+      "gps-title":    "GPS and GNSS",
+      "gps-text":     "GPS and GNSS (Global Navigation Satellite System) allow the drone to know its position precisely. They are essential for autonomous flight, return-to-home, and hovering (stationary flight at a fixed position).",
+      "lipo-title":   "LiPo Battery",
+      "lipo-text":    "Drones use LiPo (Lithium Polymer) batteries for their excellent energy-to-weight ratio. They require care: they should not be fully discharged, must be stored at the correct voltage, and recharged with dedicated chargers to avoid damage or fire.",
+      "proto-title":  "Communication protocols",
+      "proto-text":   "The Tello EDU communicates via Wi-Fi (IEEE 802.11n) using UDP (User Datagram Protocol). Commands are sent on port 8889, and telemetry (drone status data: altitude, temperature, speed) arrives on port 8890. Understanding this helped me write more stable Python scripts.",
+      "norm-title":   "ENAC / EASA Regulations",
+      "norm-text":    "In Italy drones are regulated by ENAC (National Civil Aviation Authority) under EASA (European Union Aviation Safety Agency) rules. Drones under 250 g like the Tello (87 g) fall under Open Category A1 and can fly without a license in many situations. Above certain weights or uses, registration and an exam are required.",
+      "gimbal-title": "Gimbal and stabilization",
+      "gimbal-text":  "The gimbal is a multi-axis motorized mount that keeps the camera level regardless of the drone's movements. High-end drones use 3-axis mechanical gimbals; cheaper ones like the Tello use EIS (Electronic Image Stabilization), which digitally compensates for vibrations in post-processing.",
+      "vision-title": "Computer vision",
+      "vision-text":  "Modern drones use computer vision algorithms to detect obstacles, recognize surfaces and estimate their own position even without GPS. Techniques like VIO (Visual-Inertial Odometry) enable more precise and safer flight indoors or where GPS signal is absent.",
+      /* storia */
+      "storia-label": "Historical context",
+      "storia-h1":    "The evolution of drones",
+      "storia-intro": "The history of drones is much longer than most people think: it is not a technology of the 2000s, its roots go back to the 19th century. Learning about this evolution helped me understand how rapidly this sector is still growing.",
+      "t1849-h": "The Austrian bomb balloons",
+      "t1849-p": "The Austrian army used balloons loaded with explosives during the siege of Venice. They were not controlled, but they represent one of the earliest examples of an \"unmanned aerial weapon\" in history.",
+      "t1917-h": "Kettering Bug — the first military drone",
+      "t1917-p": "The US developed the \"Kettering Bug\", an automatic biplane guided by a gyroscope and an altimeter. It was programmed to travel a precise distance and then dive onto the target.",
+      "t1935-h": "De Havilland Queen Bee — the word \"drone\" is born",
+      "t1935-p": "The British De Havilland Queen Bee is often cited as the first modern radio-controlled UAV. The term \"drone\" is said to derive from the humming sound this aircraft made during anti-aircraft gunnery exercises.",
+      "t1960-h": "Cold War and Vietnam — reconnaissance drones",
+      "t1960-p": "The US used Ryan Firebee drones for ISR (Intelligence, Surveillance, Reconnaissance) missions over enemy territory, avoiding putting human pilots at risk. During these years drones became serious intelligence tools.",
+      "t2006-h": "DJI is founded",
+      "t2006-p": "Frank Wang founds DJI (Da-Jiang Innovations) in Shenzhen, China. The company would go on to revolutionize the consumer drone market, making technology previously reserved for the military accessible to everyone.",
+      "t2013-h": "DJI Phantom — drones for everyone",
+      "t2013-p": "The DJI Phantom is the first truly mass-market consumer drone. With integrated GPS, automatic stabilization and a camera, it opened the hobbyist and professional market to millions of people worldwide.",
+      "t2019-h": "Ryze Tello EDU — the drone of my story",
+      "t2019-p": "Ryze Tech, with support from DJI and Intel, launches the Tello EDU: the educational version of the Tello with an open SDK for Python, Swift and Scratch. This is the drone with which I started my journey.",
+      "oggi":    "Today",
+      "toggi-h": "AI, autonomy and new regulations",
+      "toggi-p": "Modern drones integrate AI to avoid obstacles, perform SLAM (Simultaneous Localization And Mapping) and fly autonomously. EASA has introduced the U-Space regulation to manage drone air traffic on a European scale.",
+      /* programmazione */
+      "prog-label":  "Software development",
+      "prog-h1":     "Programming",
+      "prog-intro1": "Programming the Tello EDU in Python was the most stimulating part of my journey. The library used is <strong>djitellopy</strong>, a Python wrapper (a layer of code that simplifies the use of complex functions) that transparently handles all UDP (User Datagram Protocol — a network data transmission protocol) communication with the drone. Each command is sent via socket (a network communication channel) to port 8889 of the Tello, and the <code>time.sleep()</code> calls are necessary because the drone must complete its movement before receiving the next command.",
+      "prog-intro2": "This first script was the starting point: simple, linear, useful for understanding the basic structure of communication with the drone.",
+      "v1-title":    "Initial version — Autonomous square flight",
+      "code-note1":  "⚠️ Always run in open space, with a charged battery and a clear floor.",
+      "v2-title":    "Final version — Controller with GUI and live video",
+      "v2-intro1":   "After the first attempts with the autonomous flight script, I realized that for the <strong>school Open Days</strong> I needed something completely different: a tool that would allow anyone — even those who can't program — to interact with the drone intuitively and safely. So I rewrote everything from scratch, adding a graphical interface (<strong>GUI</strong>, Graphical User Interface) built with <strong>Tkinter</strong>, real-time video streaming via <strong>OpenCV</strong>, and real-time keyboard control.",
+      "v2-intro2":   "The differences from the initial version are substantial. Here are the main new features and the reasoning behind each:",
+      "skill1": "<strong>Live video streaming with OpenCV:</strong> the <code>drone.get_frame_read().frame</code> method captures each frame from the Tello camera. The frame is converted from BGR to RGB — the two formats differ in the order of colour channels (Blue-Green-Red vs Red-Green-Blue) — then resized to 720×540 pixels and updated on the Tkinter Canvas every 30 ms via <code>root.after(30, update_video)</code>. The recursive call of this function is necessary because Tkinter does not support separate threads for GUI updates.",
+      "skill2": "<strong>Tkinter GUI with two-column layout:</strong> the GUI is divided into two areas — live video on the left, control buttons arranged in a 3×3 grid on the right. This layout was designed with Open Day visitors in mind who had no technical knowledge: each button has an Italian label and the position follows directional logic (Forward at the top, Backward at the bottom, Left and Right on the sides).",
+      "skill3": "<strong>Real-time keyboard control:</strong> I added an event handler <code>root.bind(\"&lt;KeyPress&gt;\", keydown)</code> that intercepts WASD keys for movement, Q/E for clockwise and counter-clockwise rotations, Space for takeoff and J for landing. This allows gamers to pilot the drone with a familiar layout without touching the mouse.",
+      "skill4": "<strong>Real-time battery monitoring:</strong> with <code>root.after(1000, update_battery)</code> the battery level is updated every second in the interface. This feature came from a practical experience: during one of the first tests the drone suddenly shut down due to a dead battery. Having the data always visible on screen prevents nasty surprises, especially in a crowded environment like an Open Day.",
+      "skill5": "<strong><code>send_command()</code> function with controlled delay:</strong> every movement command passes through this function, which adds a <code>time.sleep(0.1)</code> before sending it to the drone. This small 100 ms delay prevents saturation of the UDP buffer when multiple commands are sent in rapid succession — a problem I discovered during tests when pressing multiple keys quickly caused the drone to freeze or execute commands in the wrong order.",
+      "skill6": "<strong>Removal of the autonomous loop:</strong> in v1.0 the drone executed a pre-programmed sequence of movements without human intervention. In the final version all logic is interactive: no movement occurs without explicit input from the keyboard or a button. This change makes the system much safer in a public setting where you cannot predict what will happen around the drone.",
+      "skill7": "<strong>Import of <code>threading</code>:</strong> I included the module even though it is not directly used in the main loop, in preparation for possible parallel thread management for movement commands. In some advanced tests I experimented with running flight commands in a separate thread to avoid blocking the video refresh, but for the Open Day version I kept the simpler structure.",
+      "code-note2":  "⚠️ Requires: <code>pip install djitellopy opencv-python pillow</code> — Connect to the Tello Wi-Fi before running the script.",
+      "learned-title": "What I learned from programming",
+      "learned-p1":  "Programming the drone showed me things and gave me experiences that no tutorial could have provided in the same way. The first major obstacle was figuring out why the drone would not take off: the problem was a UDP timeout — the network connection stopped responding before the command arrived. To fix it I had to study how sockets work, something I had never tackled before. Another unexpected problem was lateral drift: even when sending the \"move_forward\" command, the drone would slide sideways. I discovered that even a slight air current in a closed room is enough to affect the telemetry — the data transmitted by the drone in real time, such as altitude, speed, and battery temperature.",
+      "learned-p2":  "Over time I began building more complex flight sequences. Every error taught me something new about the relationship between code and physical hardware. The version I prepared for the Open Day was, however, the most important lesson: I understood how different it is to write code for yourself compared to writing code that must be used by others. The interface must be clear, the commands must be safe, and every possible error must be handled before it even occurs.",
+      /* epilogo */
+      "epilogo-label": "Conclusions",
+      "epilogo-h1":  "What I have learned",
+      "epilogo-p1":  "Having reached my fifth year, looking back, I am surprised by how much my view of this technology has changed. When I started, a drone was for me just a flying toy. Today I see it as a cyber-physical system (a system that combines physical hardware and computer software) with precise rules, serious safety requirements and enormous potential across many sectors.",
+      "epilogo-p2":  "I cannot say I have become an expert. I am a student, and I know very well how much there is still to learn. But I also know that two years ago I knew nothing about UDP, IMU, ENAC regulations or gimbals. Today at least I know what to look for, I know how to ask the right questions and I know where to find the answers. And that, I believe, is the most important skill you can acquire at a technical high school.",
+      "epilogo-p3":  "The code I wrote is not perfect. My knowledge of aerodynamics is basic. But every time I saw the Tello take off following exactly the instructions I had written, I understood why it is worth studying computer science: because it turns ideas into something real and concrete.",
+      "epilogo-p4":  "After graduating I want to continue exploring this field, perhaps deepening the autonomous systems and computer vision areas. The road is long, but at least I know where I started and in which direction I want to go.",
+      "skills-title": "Skills acquired",
+      "skill-a1": "Python programming and use of external libraries (djitellopy, OpenCV, Tkinter, Pillow)",
+      "skill-a2": "Understanding of UDP and TCP/IP network protocols",
+      "skill-a3": "Reading and interpreting drone telemetry (status data) in real time",
+      "skill-a4": "Developing graphical interfaces with Tkinter and handling keyboard events",
+      "skill-a5": "Capturing and displaying video streams with OpenCV in a desktop application",
+      "skill-a6": "Knowledge of ENAC / EASA regulations for civil drones in Europe",
+      "skill-a7": "Basics of aerodynamics: lift, thrust, drag and the three rotation axes (roll, pitch, yaw)",
+      "skill-a8": "Debugging (finding and fixing errors) on hardware + software systems",
+      "skill-a9": "Technical documentation of a project in a clear and understandable way",
+    }
+  };
+
+  /* ================================================================
+     LANGUAGE SWITCHER
+  ================================================================ */
+  const langBtn   = document.getElementById('langToggle');
+  const langLabel = document.getElementById('langLabel');
+  const htmlEl    = document.documentElement;
+  let currentLang = localStorage.getItem('lang') || 'it';
+
+  function applyLang(lang) {
+    const t = translations[lang];
+    document.querySelectorAll('[data-t]').forEach(el => {
+      const key = el.getAttribute('data-t');
+      if (t[key] !== undefined) {
+        el.innerHTML = t[key];
+      }
+    });
+    htmlEl.setAttribute('lang', lang);
+    htmlEl.setAttribute('data-lang', lang);
+    if (lang === 'en') {
+      langLabel.textContent = 'IT';
+      langBtn.querySelector('.lang-flag').textContent = '🇮🇹';
+    } else {
+      langLabel.textContent = 'EN';
+      langBtn.querySelector('.lang-flag').textContent = '🇬🇧';
+    }
+    localStorage.setItem('lang', lang);
+    currentLang = lang;
+  }
+
+  langBtn.addEventListener('click', () => {
+    applyLang(currentLang === 'it' ? 'en' : 'it');
+  });
+
+  // Apply saved language on load
+  applyLang(currentLang);
+
+  /* ================================================================
+     SIDEBAR
+  ================================================================ */
   const menuToggle = document.getElementById('menuToggle');
   const sidebar    = document.getElementById('sidebar');
   const overlay    = document.getElementById('overlayBg');
@@ -980,23 +1285,33 @@ root.mainloop()
     });
   });
 
-  /* ---- TEMA ---- */
+  /* ================================================================
+     TEMA
+  ================================================================ */
   const themeBtn = document.getElementById('themeToggle');
-  const html     = document.documentElement;
 
   function setTheme(theme) {
-    html.setAttribute('data-theme', theme);
+    htmlEl.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    themeBtn.textContent = theme === 'dark' ? '☀ Light' : '☾ Dark';
+    const span = themeBtn.querySelector('span');
+    if (theme === 'dark') {
+      themeBtn.childNodes[0].textContent = '☀ ';
+      if (span) span.textContent = 'Light';
+    } else {
+      themeBtn.childNodes[0].textContent = '☾ ';
+      if (span) span.textContent = 'Dark';
+    }
   }
   const saved = localStorage.getItem('theme') ||
                 (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   setTheme(saved);
   themeBtn.addEventListener('click', () => {
-    setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    setTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
 
-  /* ---- CANVAS DRONI ANIMATI ---- */
+  /* ================================================================
+     CANVAS DRONI ANIMATI
+  ================================================================ */
   const canvas = document.getElementById('droneCanvas');
   const ctx    = canvas.getContext('2d');
 
@@ -1008,7 +1323,7 @@ root.mainloop()
   window.addEventListener('resize', resize);
 
   function drawDroneIcon(x, y, size, angle, alpha) {
-    const isDark = html.getAttribute('data-theme') === 'dark';
+    const isDark = htmlEl.getAttribute('data-theme') === 'dark';
     const strokeA = isDark ? alpha * 0.20 : alpha * 0.11;
     const fillA   = isDark ? alpha * 0.07 : alpha * 0.04;
     const stroke  = `rgba(${isDark?'255,255,255':'0,0,0'},${strokeA})`;
@@ -1074,7 +1389,6 @@ root.mainloop()
 </script>
 
   <script>
-    // Drone image SVG fallbacks
     const droneImgFallbacks = {
       "Ryze Tello EDU": "#87ceeb",
       "DJI RoboMaster TT": "#90ee90",
@@ -1084,7 +1398,6 @@ root.mainloop()
       document.querySelectorAll(".drone-img-wrap img").forEach(img => {
         img.addEventListener("error", function() {
           const alt = this.alt;
-          const color = droneImgFallbacks[alt] || "#eee";
           const wrap = this.closest(".drone-img-wrap");
           if (wrap) {
             this.remove();
