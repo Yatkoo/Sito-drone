@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Il mio percorso nei droni – Nicolò Faustini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f7f7;
+      --text: #111111;
+      --text2: #444444;
+      --gray: #888888;
+      --gray-light: #eeeeee;
+      --border: #e0e0e0;
+      --card-bg: #ffffff;
+      --sidebar-bg: #fafafa;
+      --shadow: rgba(0,0,0,0.10);
+      --shadow-strong: rgba(0,0,0,0.18);
+    }
+    [data-theme="dark"] {
+      --bg: #0a0a0a;
+      --bg2: #141414;
+      --text: #f0f0f0;
+      --text2: #aaaaaa;
+      --gray: #666666;
+      --gray-light: #1e1e1e;
+      --border: #2a2a2a;
+      --card-bg: #141414;
+      --sidebar-bg: #111111;
+      --shadow: rgba(0,0,0,0.5);
+      --shadow-strong: rgba(0,0,0,0.7);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
+    }
+
+    #droneCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 62px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 62px 1fr 90px;
+      align-items: center;
+      padding: 0 1rem;
+      z-index: 400;
+      transition: background 0.4s, border-color 0.4s;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      padding: 0;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drone-btn-svg {
+      width: 34px;
+      height: 34px;
+      overflow: visible;
+    }
+
+    .arm-line {
+      stroke: var(--text);
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: transform 0.42s cubic-bezier(.4,0,.2,1), stroke-width 0.42s;
+      transform-origin: 17px 17px;
+    }
+    .prop-circle {
+      fill: none;
+      stroke: var(--text);
+      stroke-width: 1.8;
+      transition: r 0.42s cubic-bezier(.4,0,.2,1), opacity 0.42s cubic-bezier(.4,0,.2,1);
+    }
+    .body-dot { fill: var(--text); }
+
+    .menu-toggle.open .arm-tl { transform: rotate(45deg); }
+    .menu-toggle.open .arm-tr { transform: rotate(-45deg); }
+    .menu-toggle.open .arm-bl { transform: rotate(-45deg); }
+    .menu-toggle.open .arm-br { transform: rotate(45deg); }
+    .menu-toggle.open .arm-line { stroke-width: 2.5; }
+    .menu-toggle.open .prop-circle { r: 0; opacity: 0; }
+
+    @keyframes propSpinOnce {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
+    .menu-toggle.spinning .prop-tl,
+    .menu-toggle.spinning .prop-tr,
+    .menu-toggle.spinning .prop-bl,
+    .menu-toggle.spinning .prop-br {
+      animation: propSpinOnce 0.55s cubic-bezier(.4,0,.2,1) forwards;
+      transform-origin: 17px 17px;
+    }
+
+    .site-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      justify-self: end;
+      white-space: nowrap;
+    }
+    .theme-toggle:hover { background: var(--gray-light); }
+
+    .sidebar {
+      position: fixed;
+      top: 0; bottom: 0;
+      left: -300px;
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      transition: left 0.4s cubic-bezier(.4,0,.2,1), background 0.4s;
+      z-index: 500;
+      padding-top: 72px;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar ul { list-style: none; }
+    .sidebar li button {
+      width: 100%;
+      padding: 1rem 1.8rem;
+      background: none;
+      border: none;
+      border-left: 3px solid transparent;
+      text-align: left;
+      font-size: 0.98rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sidebar li button:hover { color: var(--text); background: var(--gray-light); }
+    .sidebar li button.active {
+      color: var(--text);
+      font-weight: 600;
+      border-left: 3px solid var(--text);
+      background: var(--gray-light);
+    }
+
+    .overlay-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.35s;
+      z-index: 450;
+    }
+    .overlay-bg.visible { opacity: 1; visibility: visible; }
+
+    main {
+      padding-top: 62px;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page {
+      display: none;
+      padding: 3rem 1.5rem 5rem;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .page.active {
+      display: block;
+      animation: pageIn 0.45s cubic-bezier(.4,0,.2,1) both;
+    }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    h2.section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin: 3rem 0 1.5rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .intro-text {
+      font-size: 1.02rem;
+      line-height: 1.82;
+      color: var(--text2);
+      max-width: 780px;
+    }
+    .intro-text p { margin-bottom: 1.2rem; }
+    .intro-text strong { color: var(--text); font-weight: 500; }
+
+    .page-header {
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    .page-label {
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray);
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+    }
+
+    /* DRONE CARDS */
+    .drone-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.4rem;
+    }
+    .drone-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--card-bg);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .drone-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px var(--shadow-strong);
+      border-color: var(--gray);
+    }
+    .drone-img-wrap {
+      position: relative;
+      height: 210px;
+      background: var(--bg2);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .drone-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 1rem;
+      transition: transform 0.4s ease;
+    }
+    .drone-card:hover .drone-img-wrap img { transform: scale(1.05); }
+
+    .tier-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      padding: 0.22rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .tier-entry { background: #111; color: #fff; }
+    .tier-mid   { background: #444; color: #fff; }
+    .tier-high  { background: #1a1a1a; color: #d4d4d4; border: 1px solid #555; }
+    [data-theme="dark"] .tier-entry { background: #eee; color: #111; }
+    [data-theme="dark"] .tier-mid   { background: #bbb; color: #111; }
+    [data-theme="dark"] .tier-high  { background: #e8e8e8; color: #111; border: 1px solid #aaa; }
+
+    .drone-info { padding: 1.3rem 1.4rem 1.5rem; }
+    .drone-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .drone-price { font-size: 0.85rem; color: var(--gray); margin-bottom: 0.9rem; }
+    .drone-desc  { font-size: 0.92rem; line-height: 1.65; color: var(--text2); margin-bottom: 1rem; }
+
+    .badges-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.1rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.22rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      background: var(--bg2);
+    }
+
+    .spec-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-bottom: 1.2rem; }
+    .spec-table tr { border-bottom: 1px solid var(--border); }
+    .spec-table tr:last-child { border-bottom: none; }
+    .spec-table td { padding: 0.42rem 0.2rem; color: var(--text2); }
+    .spec-table td:first-child { font-weight: 500; color: var(--text); width: 48%; }
+
+    .buy-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.72rem 1rem;
+      border-radius: 10px;
+      background: var(--text);
+      color: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .buy-btn:hover { opacity: 0.72; transform: scale(0.98); }
+
+    /* INFORMAZIONI GRID */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.1rem;
+    }
+    .info-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.3rem 1.4rem;
+      background: var(--card-bg);
+      transition: box-shadow 0.3s;
+    }
+    .info-card:hover { box-shadow: 0 8px 24px var(--shadow); }
+    .info-icon  { font-size: 1.6rem; margin-bottom: 0.7rem; }
+    .info-title { font-family: 'Syne', sans-serif; font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.55rem; }
+    .info-text  { font-size: 0.9rem; line-height: 1.7; color: var(--text2); }
+
+    /* TIMELINE */
+    .timeline { margin-top: 0.5rem; }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 75px 1fr;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+      align-items: start;
+    }
+    .timeline-year {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      padding-top: 0.1rem;
+    }
+    .timeline-content {
+      border-left: 1px solid var(--border);
+      padding-left: 1.3rem;
+    }
+    .timeline-content h3 { font-family: 'Syne', sans-serif; font-size: 0.98rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+    .timeline-content p  { font-size: 0.91rem; line-height: 1.72; color: var(--text2); }
+
+    /* CODE */
+    pre[class*="language-"] { border-radius: 12px; border: 1px solid var(--border); margin: 1.5rem 0; font-size: 0.86rem; }
+    .code-note { font-size: 0.86rem; color: var(--gray); font-style: italic; text-align: center; margin-top: 0.8rem; }
+
+    /* STATS */
+    .stat-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 2rem 0; }
+    .stat-box {
+      flex: 1; min-width: 110px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      text-align: center;
+      background: var(--card-bg);
+    }
+    .stat-num   { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: 0.78rem; color: var(--gray); margin-top: 0.2rem; }
+
+    /* SKILLS */
+    .skill-list { margin: 1.5rem 0; }
+    .skill-item {
+      display: flex; align-items: flex-start; gap: 0.8rem;
+      padding: 0.72rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.93rem;
+      color: var(--text2);
+    }
+    .skill-item:last-child { border-bottom: none; }
+    .skill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text); flex-shrink: 0; margin-top: 0.45rem; }
+
+    /* VERSION DIFF BADGE */
+    .version-tag {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--text);
+      color: var(--bg);
+      margin-bottom: 1rem;
+      vertical-align: middle;
+    }
+    .version-tag.v2 {
+      background: #00ADB5;
+      color: #fff;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+      color: var(--gray);
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .drone-grid, .info-grid { grid-template-columns: 1fr; }
+      .timeline-item { grid-template-columns: 55px 1fr; gap: 0.8rem; }
+      .stat-box { min-width: 85px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="droneCanvas"></canvas>
+
+<header>
+  <button class="menu-toggle" id="menuToggle" aria-label="Apri menu">
+    <svg class="drone-btn-svg" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line class="arm-line arm-tl" x1="17" y1="17" x2="5"  y2="5"/>
+      <line class="arm-line arm-tr" x1="17" y1="17" x2="29" y2="5"/>
+      <line class="arm-line arm-bl" x1="17" y1="17" x2="5"  y2="29"/>
+      <line class="arm-line arm-br" x1="17" y1="17" x2="29" y2="29"/>
+      <circle class="prop-circle prop-tl" cx="5"  cy="5"  r="4.5"/>
+      <circle class="prop-circle prop-tr" cx="29" cy="5"  r="4.5"/>
+      <circle class="prop-circle prop-bl" cx="5"  cy="29" r="4.5"/>
+      <circle class="prop-circle prop-br" cx="29" cy="29" r="4.5"/>
+      <circle class="body-dot" cx="17" cy="17" r="2.8"/>
+    </svg>
+  </button>
+
+  <div class="site-title">Nicolò Faustini — Droni</div>
+  <button class="theme-toggle" id="themeToggle">☾ Dark</button>
+</header>
+
+<div class="overlay-bg" id="overlayBg"></div>
+
+<div class="sidebar" id="sidebar">
+  <ul>
+    <li><button class="active" data-page="introduzione">Introduzione</button></li>
+    <li><button data-page="droni">I miei droni</button></li>
+    <li><button data-page="informazioni">Come funzionano</button></li>
+    <li><button data-page="storia">Storia</button></li>
+    <li><button data-page="programmazione">Programmazione</button></li>
+    <li><button data-page="epilogo">Epilogo</button></li>
+  </ul>
+</div>
+
+<main>
+
+  <!-- INTRODUZIONE -->
+  <div id="introduzione" class="page active">
+    <div class="page-header">
+      <div class="page-label">Presentazione</div>
+      <h1>Il mio percorso<br>nei droni</h1>
+    </div>
+    <div class="intro-text">
+      <p>Mi chiamo <strong>Nicolò Faustini</strong>, sono uno studente del quinto anno dell'Istituto Tecnico Tecnologico, indirizzo informatica, classe 5AI. Questo sito racconta un percorso che ho iniziato quasi per caso due anni fa, quando a scuola ci hanno messo in mano un piccolo drone chiamato <strong>Ryze Tello EDU</strong> e ci hanno detto: "programmatelo". Da quel momento non mi sono più fermato.</p>
+      <p>All'inizio non sapevo quasi nulla di droni. Sapevo che erano quei dispositivi volanti che si vedono nei video su YouTube, ma non immaginavo quanto ci fosse dietro: fisica, elettronica, codice, normative, aerodinamica. Piano piano ho iniziato a capire come funzionano davvero, prima studiando le basi del volo, poi imparando a programmarli con <strong>Python</strong>, uno dei linguaggi di programmazione più diffusi al mondo.</p>
+      <p>In questi due anni ho scritto decine di script (file di codice), ho fatto volare il drone seguendo traiettorie geometriche, ho capito cosa vuol dire fare debugging (trovare e correggere errori nel codice) quando il drone non decolla come ti aspetti. Ho imparato a leggere i log di sistema, a gestire i timeout (scadenze del tempo di attesa nelle comunicazioni di rete) e a costruire sequenze di volo automatizzate.</p>
+      <p>Ma non è solo una questione tecnica. I droni mi hanno aperto gli occhi su un settore in rapidissima crescita, che tocca la logistica, l'agricoltura, il cinema e il soccorso in emergenza. Studiare le normative ENAC (Ente Nazionale per l'Aviazione Civile) ed EASA (European Union Aviation Safety Agency — l'ente europeo per la sicurezza aerea) mi ha fatto capire quanto sia importante usare questi dispositivi in modo responsabile e consapevole.</p>
+      <p>Questo sito non è un progetto perfetto. È un work in progress, esattamente come lo sono io. Contiene le cose che ho imparato, i droni che conosco, il codice che ho scritto e le riflessioni di chi ha passato due anni a fare errori e a imparare da essi.</p>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num">2</div><div class="stat-label">anni di studio</div></div>
+      <div class="stat-box"><div class="stat-num">5AI</div><div class="stat-label">classe attuale</div></div>
+      <div class="stat-box"><div class="stat-num">Python</div><div class="stat-label">linguaggio usato</div></div>
+      <div class="stat-box"><div class="stat-num">Tello</div><div class="stat-label">drone principale</div></div>
+    </div>
+    <p style="font-size:0.8rem; color:var(--gray); margin-top:1.5rem;">Anno scolastico 2025/2026 — Istituto Tecnico Tecnologico</p>
+  </div>
+
+  <!-- DRONI -->
+  <div id="droni" class="page">
+    <div class="page-header">
+      <div class="page-label">Hardware</div>
+      <h1>I miei droni</h1>
+    </div>
+    <div class="intro-text" style="margin-bottom:2rem;">
+      <p>Qui racconto i tre droni che fanno parte del mio percorso: uno è quello con cui ho iniziato a scuola (fascia base), uno è quello che vorrei usare per andare un po' oltre (fascia media), e l'ultimo è quello che rappresenta il top della gamma Tello/DJI per uso educativo e hobbistico — il mio "drone dei sogni" al momento. Per ognuno ho messo le specifiche tecniche, una descrizione e il link per acquistarlo.</p>
+    </div>
+    <div class="drone-grid">
+
+      <div class="drone-card">
+        <div class="drone-img-wrap">
+          <span class="tier-badge tier-entry">Fascia Base</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/sku/cover/3a72a039-a660-40ed-a137-c2df14b394a7@ultra.png" />
+        </div>
+        <div class="drone-info">
+          <div class="drone-name">Ryze Tello EDU</div>
+          <div class="drone-price">~ 130 €</div>
+          <div class="badges-row">
+            <span class="badge">No patentino</span><span class="badge">SDK Python</span><span class="badge">Indoor</span><span class="badge">Wi-Fi</span>
+          </div>
+          <p class="drone-desc">Il mio primo drone. È piccolo, leggero (87 g) e si controlla via Wi-Fi (rete wireless locale). La parte più interessante è il suo SDK (Software Development Kit) che permette di programmarlo in Python, Swift o Scratch. Con questo ho imparato i comandi base: decollo, atterraggio, movimenti cardinali e rotazioni. Per quanto offre, il prezzo è davvero onesto.</p>
+          <table class="spec-table">
+            <tr><td>Peso</td><td>87 g</td></tr>
+            <tr><td>Autonomia</td><td>~13 min</td></tr>
+            <tr><td>Velocità max</td><td>8 m/s</td></tr>
+            <tr><td>Camera</td><td>5 MP, 720p HD</td></tr>
+            <tr><td>Range (portata)</td><td>~100 m</td></tr>
+            <tr><td>Stabilizzazione</td><td>EIS (Electronic Image Stabilization)</td></tr>
+          </table>
+          <a class="buy-btn" href="https://store.dji.com/it/product/tello-edu" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+        </div>
+      </div>
+
+      <div class="drone-card">
+        <div class="drone-img-wrap">
+          <span class="tier-badge tier-mid">Fascia Media</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/spu/cover/7a75df0274ad64bfbf877a1ed8832e72@ultra.png" />
+        </div>
+        <div class="drone-info">
+          <div class="drone-name">DJI RoboMaster TT</div>
+          <div class="drone-price">~ 290 €</div>
+          <div class="badges-row">
+            <span class="badge">SDK avanzato</span><span class="badge">LED RGB</span><span class="badge">Sensore ToF</span><span class="badge">Espandibile</span>
+          </div>
+          <p class="drone-desc">Il RoboMaster TT è sostanzialmente un Tello EDU potenziato: mantiene gli stessi comandi base ma aggiunge un sensore ToF (Time-of-Flight), LED RGB programmabili e una porta di espansione per sensori aggiuntivi. Ideale per chi vuole iniziare con la visione artificiale e la robotica.</p>
+          <table class="spec-table">
+            <tr><td>Peso</td><td>87 g (telaio base)</td></tr>
+            <tr><td>Autonomia</td><td>~13 min</td></tr>
+            <tr><td>Velocità max</td><td>8 m/s</td></tr>
+            <tr><td>Camera</td><td>5 MP, 720p HD</td></tr>
+            <tr><td>Sensore ToF</td><td>Sì, portata fino a 10 m</td></tr>
+            <tr><td>LED</td><td>8 LED RGB programmabili</td></tr>
+          </table>
+          <a class="buy-btn" href="https://store.dji.com/it/product/robomaster-tt" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+        </div>
+      </div>
+
+      <div class="drone-card">
+        <div class="drone-img-wrap">
+          <span class="tier-badge tier-high">Fascia Alta</span>
+          <img src="https://se-cdn.djiits.com/tpc/uploads/carousel/image/2034615e17930304e622e9276219398c@origin.jpg" />
+        </div>
+        <div class="drone-info">
+          <div class="drone-name">DJI Mini 4 Pro</div>
+          <div class="drone-price">~ 759 €</div>
+          <div class="badges-row">
+            <span class="badge">4K HDR</span><span class="badge">APAS 360°</span><span class="badge">&lt; 249 g</span><span class="badge">34 min autonomia</span>
+          </div>
+          <p class="drone-desc">Il DJI Mini 4 Pro è attualmente uno dei migliori droni consumer sul mercato. Pesa meno di 249 g — soglia importante perché al di sotto di questo peso le normative europee prevedono meno restrizioni operative. Ha una camera con sensore CMOS da 1/1.3" capace di girare video in 4K HDR e il sistema APAS 4.0 che evita automaticamente gli ostacoli.</p>
+          <table class="spec-table">
+            <tr><td>Peso</td><td>249 g</td></tr>
+            <tr><td>Autonomia</td><td>~34 min</td></tr>
+            <tr><td>Velocità max</td><td>57 km/h</td></tr>
+            <tr><td>Camera</td><td>4K/60fps, sensore 1/1.3" CMOS</td></tr>
+            <tr><td>Range (portata)</td><td>~20 km (trasmissione O4)</td></tr>
+            <tr><td>Gimbal</td><td>3 assi — stabilizzazione meccanica</td></tr>
+          </table>
+          <a class="buy-btn" href="https://store.dji.com/it/product/dji-mini-4-pro" target="_blank" rel="noopener">Acquista su DJI Store →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INFORMAZIONI -->
+  <div id="informazioni" class="page">
+    <div class="page-header">
+      <div class="page-label">Tecnologia</div>
+      <h1>Come funzionano<br>i droni</h1>
+    </div>
+    <div class="intro-text" style="margin-bottom:2rem;">
+      <p>Un drone, chiamato tecnicamente UAV (Unmanned Aerial Vehicle — veicolo aereo senza pilota a bordo), è un sistema molto più complesso di quanto sembri dall'esterno. Sotto la scocca di plastica ci sono sensori, algoritmi di controllo e sistemi di comunicazione che lavorano insieme centinaia di volte al secondo. Di seguito spiego i componenti principali e come interagiscono tra loro.</p>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Flight Controller (FC)</div><p class="info-text">È il "cervello" del drone. Il FC (Flight Controller — controllore di volo) è una scheda elettronica che raccoglie i dati da tutti i sensori e calcola la velocità esatta di ciascun motore centinaia di volte al secondo per mantenere il drone stabile. Senza di esso il drone sarebbe incontrollabile.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">IMU — Unità di misura inerziale</div><p class="info-text">L'IMU (Inertial Measurement Unit) contiene accelerometri e giroscopi. Gli accelerometri misurano l'accelerazione lineare in ogni direzione, i giroscopi misurano la velocità di rotazione attorno ai tre assi: rollio (roll), beccheggio (pitch) e imbardata (yaw).</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">GPS e GNSS</div><p class="info-text">Il GPS e il GNSS (Global Navigation Satellite System) permettono al drone di conoscere la propria posizione con precisione. Sono fondamentali per il volo autonomo, il return-to-home e l'hovering (volo stazionario in posizione fissa).</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Batteria LiPo</div><p class="info-text">I droni usano batterie LiPo (Lithium Polymer) per l'ottimo rapporto tra energia erogata e peso contenuto. Richiedono però cura: non vanno scaricate completamente, devono essere conservate alla giusta tensione e ricaricate con caricatori appositi per evitare danni o incendi.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Protocolli di comunicazione</div><p class="info-text">Il Tello EDU comunica via Wi-Fi (IEEE 802.11n) usando UDP (User Datagram Protocol). I comandi vengono inviati sulla porta 8889, la telemetria (dati di stato del drone: altitudine, temperatura, velocità) arriva sulla porta 8890. Capire questo mi ha aiutato a scrivere script Python più stabili.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Normative ENAC / EASA</div><p class="info-text">In Italia i droni sono regolati da ENAC (Ente Nazionale per l'Aviazione Civile) secondo le norme EASA (European Union Aviation Safety Agency). I droni sotto i 250 g come il Tello (87 g) rientrano nella Categoria Aperta A1 e possono volare senza patentino in molte situazioni. Oltre certi pesi o utilizzi servono registrazione ed esame.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Gimbal e stabilizzazione</div><p class="info-text">Il gimbal è un supporto motorizzato multi-asse che mantiene la camera sempre orizzontale indipendentemente dai movimenti del drone. I droni di fascia alta usano gimbal meccanici a 3 assi; quelli economici come il Tello usano l'EIS (Electronic Image Stabilization), che compensa digitalmente le vibrazioni in post-elaborazione.</p></div>
+      <div class="info-card"><div class="info-icon"></div><div class="info-title">Visione artificiale</div><p class="info-text">I droni moderni usano algoritmi di computer vision (visione artificiale) per rilevare ostacoli, riconoscere superfici e stimare la propria posizione anche senza GPS. Tecniche come VIO (Visual-Inertial Odometry) permettono un volo più preciso e sicuro in ambienti chiusi o con segnale GPS assente.</p></div>
+    </div>
+  </div>
+
+  <!-- STORIA -->
+  <div id="storia" class="page">
+    <div class="page-header">
+      <div class="page-label">Contesto storico</div>
+      <h1>L'evoluzione dei droni</h1>
+    </div>
+    <div class="intro-text" style="margin-bottom:2rem;">
+      <p>La storia dei droni è molto più lunga di quanto si pensi: non è una tecnologia degli anni 2000, le sue radici arrivano fino al XIX secolo. Conoscere questa evoluzione mi ha aiutato a capire quanto rapidamente questo settore stia ancora crescendo.</p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-year">1849</div><div class="timeline-content"><h3>I palloni bomba austriaci</h3><p>L'esercito austriaco utilizza palloni aerostatici carichi di esplosivo durante l'assedio di Venezia. Non erano controllati, ma rappresentano uno dei primissimi esempi di "arma aerea senza pilota" nella storia.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1917</div><div class="timeline-content"><h3>Kettering Bug — il primo drone militare</h3><p>Gli USA sviluppano il "Kettering Bug", un biplano automatico guidato da un giroscopio e da un altimetro. Era programmato per percorrere una distanza precisa e poi precipitare sul bersaglio.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1935</div><div class="timeline-content"><h3>De Havilland Queen Bee — nasce il termine "drone"</h3><p>Il britannico De Havilland Queen Bee è spesso citato come il primo UAV moderno radiocomandato. Si dice che il termine "drone" (fuco in inglese) derivi dal ronzio di questo velivolo durante le esercitazioni di tiro antiaereo.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">1960–80</div><div class="timeline-content"><h3>Guerra Fredda e Vietnam — droni da ricognizione</h3><p>Gli USA usano droni Ryan Firebee per missioni di ISR (Intelligence, Surveillance, Reconnaissance) sopra territori nemici, evitando di mettere in pericolo i piloti umani. È in questi anni che i droni diventano strumenti seri di intelligence militare.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2006</div><div class="timeline-content"><h3>Nasce DJI</h3><p>Frank Wang fonda DJI (Da-Jiang Innovations) a Shenzhen, Cina. L'azienda inizierà a rivoluzionare il mercato consumer dei droni, rendendo accessibile una tecnologia fino ad allora riservata a militari e professionisti.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2013</div><div class="timeline-content"><h3>DJI Phantom — il drone per tutti</h3><p>Il DJI Phantom è il primo drone consumer davvero di massa. Con GPS integrato, stabilizzazione automatica e camera, apre il mercato hobbistico e professionale a milioni di persone in tutto il mondo.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">2019</div><div class="timeline-content"><h3>Ryze Tello EDU — il drone della mia storia</h3><p>Ryze Tech, con il supporto di DJI e Intel, lancia il Tello EDU: versione educativa del Tello con SDK aperto per Python, Swift e Scratch. È il drone con cui ho iniziato il mio percorso.</p></div></div>
+      <div class="timeline-item"><div class="timeline-year">Oggi</div><div class="timeline-content"><h3>AI, autonomia e nuove normative</h3><p>I droni moderni integrano AI per evitare ostacoli, fare SLAM (Simultaneous Localization And Mapping) e volare in modo autonomo. L'EASA ha introdotto il regolamento U-Space per gestire il traffico aereo dei droni su scala europea.</p></div></div>
+    </div>
+  </div>
+
+  <!-- PROGRAMMAZIONE -->
+  <div id="programmazione" class="page">
+    <div class="page-header">
+      <div class="page-label">Sviluppo software</div>
+      <h1>Programmazione</h1>
+    </div>
+    <div class="intro-text" style="margin-bottom:1.5rem;">
+      <p>Programmare il Tello EDU in Python è stata la parte più stimolante del mio percorso. Si usa la libreria <strong>djitellopy</strong>, un wrapper Python (un "involucro" di codice che semplifica l'uso di funzioni complesse) che gestisce in modo trasparente tutta la comunicazione UDP (User Datagram Protocol — protocollo di trasmissione dati su rete) con il drone. Ogni comando viene inviato via socket (canale di comunicazione di rete) alla porta 8889 del Tello, e i <code>time.sleep()</code> sono necessari perché il drone deve completare il movimento prima di ricevere il comando successivo.</p>
+      <p>Questo primo script è stato il punto di partenza: semplice, lineare, utile per capire la struttura di base della comunicazione con il drone.</p>
+    </div>
+
+    <h2 class="section-title">Versione iniziale — Volo quadrato autonomo</h2>
+    <span class="version-tag">v1.0</span>
+    <pre><code class="language-python">
+# ============================================================
+#  Volo quadrato con Ryze Tello EDU
+#  Libreria: djitellopy  →  pip install djitellopy
+# ============================================================
+
+from djitellopy import Tello
+import time
+
+# Crea l'istanza e connettiti via Wi-Fi (UDP port 8889)
+tello = Tello()
+tello.connect()
+
+# Controlla la batteria prima di volare — buona pratica sempre!
+batteria = tello.get_battery()
+print(f"Livello batteria: {batteria}%")
+
+if batteria &lt; 20:
+    print("Batteria troppo bassa, non decollare.")
+else:
+    tello.takeoff()           # decollo automatico a ~80 cm
+    time.sleep(2)             # aspetta stabilizzazione
+
+    # Percorri 4 lati da 100 cm con rotazione di 90° tra uno e l'altro
+    for lato in range(4):
+        print(f"Lato {lato + 1} di 4")
+        tello.move_forward(100)        # avanza di 100 cm
+        time.sleep(1.5)
+        tello.rotate_clockwise(90)     # ruota di 90° (variazione yaw)
+        time.sleep(1)
+
+    tello.land()              # atterraggio controllato
+    tello.end()               # chiudi connessione UDP
+    print("Volo completato!")
+    </code></pre>
+    <p class="code-note">⚠️ Esegui sempre in spazio aperto, con batteria carica e pavimento libero da ostacoli.</p>
+
+    <h2 class="section-title">Versione finale — Controller con GUI e video in tempo reale</h2>
+    <span class="version-tag v2">v2.0 — Open Day</span>
+    <div class="intro-text" style="margin-bottom:1.8rem; margin-top:1rem;">
+      <p>Dopo i primi tentativi con lo script di volo autonomo, ho capito che per gli <strong>Open Day scolastici</strong> avevo bisogno di qualcosa di completamente diverso: uno strumento che permettesse a chiunque — anche chi non sa programmare — di interagire con il drone in modo intuitivo e sicuro. Così ho riscritto tutto da zero, aggiungendo un'interfaccia grafica (<strong>GUI</strong>, Graphical User Interface) costruita con <strong>Tkinter</strong>, lo streaming video in tempo reale tramite <strong>OpenCV</strong> e il controllo da tastiera in tempo reale.</p>
+      <p>Le differenze rispetto alla versione iniziale sono sostanziali. Ecco le principali novità e i ragionamenti dietro a ciascuna:</p>
+    </div>
+
+    <div class="skill-list" style="margin-bottom:2rem;">
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Streaming video live con OpenCV:</strong> il metodo <code>drone.get_frame_read().frame</code> cattura ogni fotogramma dalla camera del Tello. Il frame viene convertito da BGR a RGB — i due formati si distinguono per l'ordine dei canali colore (Blue-Green-Red vs Red-Green-Blue) — poi ridimensionato a 720×540 pixel e aggiornato sul Canvas Tkinter ogni 30 ms tramite <code>root.after(30, update_video)</code>. Il richiamo ricorsivo di questa funzione è necessario perché Tkinter non supporta thread separati per l'aggiornamento dell'interfaccia grafica.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Interfaccia grafica Tkinter con layout a due colonne:</strong> la GUI è divisa in due aree — a sinistra il video dal vivo, a destra i pulsanti di controllo disposti a griglia 3×3. Questo layout è stato progettato pensando alle persone che si avvicinavano al drone durante l'Open Day senza alcuna conoscenza tecnica: ogni pulsante ha un'etichetta in italiano e la posizione segue la logica direzionale (Avanti in alto, Indietro in basso, Sinistra e Destra ai lati).</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Controllo da tastiera in tempo reale:</strong> ho aggiunto un gestore di eventi <code>root.bind("&lt;KeyPress&gt;", keydown)</code> che intercetta i tasti WASD per il movimento, Q/E per le rotazioni orarie e antiorarie, Spazio per il decollo e J per l'atterraggio. Questo permette a chi conosce già i videogiochi di pilotare il drone con un layout familiare senza toccare il mouse.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Monitoraggio batteria in tempo reale:</strong> con <code>root.after(1000, update_battery)</code> il livello di batteria viene aggiornato ogni secondo nell'interfaccia. Questa funzionalità è nata da un'esperienza pratica: durante uno dei primi test il drone si era spento improvvisamente per batteria scarica. Avere il dato sempre visibile sullo schermo evita brutte sorprese, specialmente in un ambiente affollato come un Open Day.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Funzione <code>send_command()</code> con ritardo controllato:</strong> ogni comando di movimento passa attraverso questa funzione, che aggiunge un <code>time.sleep(0.1)</code> prima dell'invio al drone. Questo piccolo ritardo di 100 ms evita la saturazione del buffer UDP quando più comandi vengono inviati in rapida successione — un problema che ho scoperto durante i test, quando premendo più tasti velocemente il drone si bloccava o eseguiva comandi in ordine sbagliato.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Eliminazione del loop autonomo:</strong> nella v1.0 il drone eseguiva una sequenza di movimenti pre-programmata senza intervento umano. Nella versione finale tutta la logica è interattiva: nessun movimento avviene senza un input esplicito da tastiera o da pulsante. Questo cambiamento rende il sistema molto più sicuro in un contesto pubblico, dove non si può prevedere cosa succede attorno al drone.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-dot"></div>
+        <div><strong>Importazione di <code>threading</code>:</strong> ho incluso il modulo anche se non usato direttamente nel loop principale, in preparazione a un'eventuale gestione parallela dei thread per i comandi di movimento. In alcuni test avanzati ho sperimentato l'esecuzione dei comandi di volo in un thread separato per non bloccare il refresh del video, ma per la versione Open Day ho mantenuto la struttura più semplice.</div>
+      </div>
+    </div>
+
+    <pre><code class="language-python">
+import cv2
+import threading
+import tkinter as tk
+from djitellopy import Tello
+from PIL import Image, ImageTk
+import time
+
+# ============================================================
+# INIZIALIZZA DRONE
+# ============================================================
+drone = Tello()
+drone.connect()
+drone.streamon()         # attiva lo streaming video via Wi-Fi
+print(f"Connessione al drone riuscita: {drone.get_battery()}%")
+
+# ============================================================
+# VIDEO SETTINGS
+# ============================================================
+VIDEO_WIDTH  = 720
+VIDEO_HEIGHT = 540
+
+def update_video():
+    frame = drone.get_frame_read().frame   # fotogramma grezzo dal Tello
+    if frame is not None:
+        # Il Tello restituisce BGR (formato OpenCV), Tkinter vuole RGB
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = cv2.resize(frame, (VIDEO_WIDTH, VIDEO_HEIGHT))
+        img = Image.fromarray(frame)
+        img = ImageTk.PhotoImage(img)
+        canvas.create_image(0, 0, anchor="nw", image=img)
+        canvas.image = img   # riferimento necessario: evita il garbage collector Python
+
+    root.after(30, update_video)   # si richiama ogni 30 ms (~33 fps)
+
+# ============================================================
+# MOVIMENTO DRONE — ogni azione passa per send_command
+# ============================================================
+def send_command(command, value=30):
+    time.sleep(0.1)   # ritardo per non saturare il buffer UDP
+    print(f"Inviato comando: {command.__name__} {value}")
+    command(value)
+
+def takeoff():
+    drone.takeoff()
+    status_label.config(text="🛫 Decollato!")
+
+def land():
+    drone.land()
+    status_label.config(text="🛬 Atterrato!")
+
+def move_forward():
+    send_command(drone.move_forward, 50)
+
+def move_back():
+    send_command(drone.move_backward, 50)
+
+def move_left():
+    send_command(drone.move_left, 50)
+
+def move_right():
+    send_command(drone.move_right, 50)
+
+def rotate_clockwise():
+    send_command(drone.rotate_clockwise, 90)
+
+def rotate_counterclockwise():
+    send_command(drone.rotate_counter_clockwise, 90)
+
+# ============================================================
+# GESTIONE TASTIERA — controllo in tempo reale
+# ============================================================
+def keydown(event):
+    key = event.keysym.lower()
+    print("Tasto:", key)
+
+    if key == "w":        move_forward()
+    elif key == "s":      move_back()
+    elif key == "a":      move_left()
+    elif key == "d":      move_right()
+    elif key == "q":      rotate_counterclockwise()
+    elif key == "e":      rotate_clockwise()
+    elif key == "space":  takeoff()
+    elif key == "j":      land()
+
+# ============================================================
+# AGGIORNAMENTO BATTERIA — refresh ogni 1000 ms
+# ============================================================
+def update_battery():
+    battery_label.config(text=f"Batteria: {drone.get_battery()}%")
+    root.after(1000, update_battery)
+
+# ============================================================
+# GUI — layout a due colonne: video | controlli
+# ============================================================
+root = tk.Tk()
+root.title("Controllo Drone Tello — Open Day")
+root.geometry("1200x600")
+root.configure(bg="#222831")
+
+main_frame = tk.Frame(root, bg="#222831")
+main_frame.pack(fill="both", expand=True)
+
+# ---------- COLONNA SINISTRA: VIDEO ----------
+video_frame = tk.Frame(main_frame, bg="#222831")
+video_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+
+status_label = tk.Label(video_frame, text="Stato: Pronto",
+                         font=("Arial", 16, "bold"), fg="white", bg="#222831")
+status_label.pack(pady=10)
+
+battery_label = tk.Label(video_frame, text=f"Batteria: {drone.get_battery()}%",
+                          font=("Arial", 14), fg="#00ADB5", bg="#222831")
+battery_label.pack(pady=10)
+
+canvas = tk.Canvas(video_frame, width=VIDEO_WIDTH, height=VIDEO_HEIGHT,
+                   bg="black", highlightthickness=2, highlightbackground="white")
+canvas.pack(pady=10)
+
+# ---------- COLONNA DESTRA: PULSANTI ----------
+control_frame = tk.Frame(main_frame, bg="#222831")
+control_frame.pack(side="right", fill="y", padx=10, pady=10)
+
+drone_frame = tk.LabelFrame(control_frame, text="Controllo Drone",
+                              fg="white", bg="#222831", font=("Arial", 14, "bold"))
+drone_frame.pack(pady=10, fill="x")
+
+button_style = {
+    "width": 12, "height": 2,
+    "font": ("Arial", 12, "bold"),
+    "bg": "#00ADB5", "fg": "white",
+    "bd": 3, "relief": "raised"
+}
+
+# (testo, funzione, riga, colonna) — griglia 3x3 intuitiva
+buttons = [
+    ("Decolla",   takeoff,                  0, 1),
+    ("Atterra",   land,                     1, 1),
+    ("Avanti",    move_forward,             0, 0),
+    ("Indietro",  move_back,                2, 0),
+    ("Sinistra",  move_left,                1, 0),
+    ("Destra",    move_right,               1, 2),
+    ("Ruota DX",  rotate_clockwise,         0, 2),
+    ("Ruota SX",  rotate_counterclockwise,  2, 2),
+]
+
+for text, command, row, col in buttons:
+    tk.Button(drone_frame, text=text, command=command, **button_style)\
+      .grid(row=row, column=col, padx=5, pady=5)
+
+# ============================================================
+# AVVIO LOOP PRINCIPALE
+# ============================================================
+root.bind("&lt;KeyPress&gt;", keydown)
+update_video()
+update_battery()
+root.mainloop()
+    </code></pre>
+    <p class="code-note">⚠️ Richiede: <code>pip install djitellopy opencv-python pillow</code> — Connettiti al Wi-Fi del Tello prima di avviare lo script.</p>
+
+    <h2 class="section-title">Cosa ho imparato programmando</h2>
+    <div class="intro-text">
+      <p>Programmare il drone mi ha mostrato e dato emozioni che nessun tutorial avrebbe potuto darmi allo stesso modo. Il primo grande ostacolo è stato capire perché il drone non decollava: il problema era un timeout UDP, cioè la connessione di rete smetteva di rispondere prima che il comando arrivasse. Per risolverlo ho dovuto studiare come funzionano i socket, qualcosa che non avevo mai affrontato prima. Un altro problema inaspettato è stato il movimento laterale del drone: anche dando il comando "move_forward", scivolava di lato. Ho scoperto che persino una leggera corrente d'aria in una stanza chiusa è sufficiente a influenzare la telemetria, cioè i dati trasmessi dal drone in tempo reale come altitudine, velocità e temperatura della batteria.</p>
+      <p>Con il tempo ho iniziato a costruire sequenze di volo più complesse. Ogni errore mi ha insegnato qualcosa di nuovo sul rapporto tra codice e hardware fisico.La versione che ho preparato per l'Open Day è stata però la lezione più importante: ho capito quanto sia diverso scrivere codice per sé stessi rispetto a scrivere codice che deve essere usato da altri. L'interfaccia deve essere chiara, i comandi devono essere sicuri, e ogni possibile errore deve essere gestito prima ancora che si verifichi.</p>
+    </div>
+  </div>
+
+  <!-- EPILOGO -->
+  <div id="epilogo" class="page">
+    <div class="page-header">
+      <div class="page-label">Conclusioni</div>
+      <h1>Quello che ho imparato</h1>
+    </div>
+    <div class="intro-text">
+      <p>Arrivato al quinto anno, guardandomi indietro, sono sorpreso da quanto sia cambiata la mia visione di questa tecnologia. Quando ho iniziato, il drone era per me solo un giocattolo volante. Oggi lo vedo come un sistema cyber-fisico (un sistema che unisce hardware fisico e software informatico) con regole precise, requisiti di sicurezza seri e un potenziale enorme in tanti settori.</p>
+      <p>Non posso dire di essere diventato un esperto. Sono uno studente, e so bene quanto ci sia ancora da imparare. Ma so anche che due anni fa non sapevo nulla di UDP, di IMU, di normative ENAC o di gimbal. Oggi almeno so cosa cercare, so fare le domande giuste e so dove trovare le risposte. E questa, credo, sia la competenza più importante che si possa acquisire in un istituto tecnico.</p>
+      <p>Il codice che ho scritto non è perfetto. Le mie conoscenze di aerodinamica sono basilari. Però ogni volta che ho visto il Tello decollare seguendo esattamente le istruzioni che avevo scritto io, ho capito perché vale la pena studiare informatica: perché trasforma le idee in qualcosa di reale e concreto.</p>
+      <p>Dopo il diploma voglio continuare a esplorare questo settore, magari approfondendo la parte di autonomous systems (sistemi autonomi) e computer vision (visione artificiale). Il percorso è lungo, ma almeno so da dove sono partito e in quale direzione voglio andare.</p>
+    </div>
+
+    <h2 class="section-title">Competenze acquisite</h2>
+    <div class="skill-list">
+      <div class="skill-item"><div class="skill-dot"></div>Programmazione Python e uso di librerie esterne (djitellopy, OpenCV, Tkinter, Pillow)</div>
+      <div class="skill-item"><div class="skill-dot"></div>Comprensione dei protocolli di rete UDP e TCP/IP</div>
+      <div class="skill-item"><div class="skill-dot"></div>Lettura e interpretazione della telemetria (dati di stato) del drone in tempo reale</div>
+      <div class="skill-item"><div class="skill-dot"></div>Sviluppo di interfacce grafiche con Tkinter e gestione di eventi da tastiera</div>
+      <div class="skill-item"><div class="skill-dot"></div>Acquisizione e visualizzazione di stream video con OpenCV in un'applicazione desktop</div>
+      <div class="skill-item"><div class="skill-dot"></div>Conoscenza delle normative ENAC / EASA per i droni civili in Europa</div>
+      <div class="skill-item"><div class="skill-dot"></div>Basi di aerodinamica: portanza, spinta, resistenza e i tre assi di rotazione (rollio, beccheggio, imbardata)</div>
+      <div class="skill-item"><div class="skill-dot"></div>Debugging (ricerca e correzione di errori) su sistemi hardware + software</div>
+      <div class="skill-item"><div class="skill-dot"></div>Documentazione tecnica di un progetto in modo chiaro e comprensibile</div>
+    </div>
+    <p style="margin-top:2.5rem; font-size:0.82rem; color:var(--gray);">Nicolò Faustini – 5AI – Anno scolastico 2025/2026</p>
+  </div>
+
+</main>
+
+<footer>
+  <p>Nicolò Faustini — 5AI · Anno scolastico 2025/2026</p>
+</footer>
+
+<script>
+  /* ---- SIDEBAR ---- */
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar    = document.getElementById('sidebar');
+  const overlay    = document.getElementById('overlayBg');
+  const menuBtns   = document.querySelectorAll('.sidebar button');
+  const pages      = document.querySelectorAll('.page');
+
+  const openMenu  = () => { sidebar.classList.add('open');    overlay.classList.add('visible');   menuToggle.classList.add('open');    };
+  const closeMenu = () => { sidebar.classList.remove('open'); overlay.classList.remove('visible'); menuToggle.classList.remove('open'); };
+
+  function triggerSpin() {
+    menuToggle.classList.remove('spinning');
+    void menuToggle.offsetWidth;
+    menuToggle.classList.add('spinning');
+    setTimeout(() => menuToggle.classList.remove('spinning'), 600);
+  }
+
+  menuToggle.addEventListener('mouseenter', triggerSpin);
+  menuToggle.addEventListener('click', triggerSpin);
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+
+  function switchPage(id) {
+    closeMenu();
+    pages.forEach(p => p.classList.remove('active'));
+    menuBtns.forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`button[data-page="${id}"]`).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  menuBtns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      switchPage(btn.getAttribute('data-page'));
+    });
+  });
+
+  /* ---- TEMA ---- */
+  const themeBtn = document.getElementById('themeToggle');
+  const html     = document.documentElement;
+
+  function setTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    themeBtn.textContent = theme === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  const saved = localStorage.getItem('theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  setTheme(saved);
+  themeBtn.addEventListener('click', () => {
+    setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---- CANVAS DRONI ANIMATI ---- */
+  const canvas = document.getElementById('droneCanvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function drawDroneIcon(x, y, size, angle, alpha) {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const strokeA = isDark ? alpha * 0.20 : alpha * 0.11;
+    const fillA   = isDark ? alpha * 0.07 : alpha * 0.04;
+    const stroke  = `rgba(${isDark?'255,255,255':'0,0,0'},${strokeA})`;
+    const fill    = `rgba(${isDark?'255,255,255':'0,0,0'},${fillA})`;
+    const bodyFill= `rgba(${isDark?'255,255,255':'0,0,0'},${isDark?alpha*0.11:alpha*0.06})`;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.strokeStyle = stroke;
+    ctx.fillStyle   = fill;
+    ctx.lineWidth   = Math.max(0.8, size * 0.038);
+
+    const arm   = size * 0.42;
+    const propR = size * 0.21;
+    const bodyR = size * 0.13;
+    const dirs  = [[-1,-1],[1,-1],[1,1],[-1,1]];
+
+    dirs.forEach(([dx,dy]) => {
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(dx*arm, dy*arm); ctx.stroke();
+      ctx.beginPath(); ctx.arc(dx*arm, dy*arm, propR, 0, Math.PI*2);
+      ctx.stroke(); ctx.fill();
+    });
+
+    ctx.beginPath(); ctx.arc(0, 0, bodyR, 0, Math.PI*2);
+    ctx.fillStyle = bodyFill; ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  const NUM = 10;
+  const drones = Array.from({length: NUM}, () => ({
+    x:     Math.random() * window.innerWidth,
+    y:     Math.random() * window.innerHeight,
+    size:  38 + Math.random() * 68,
+    speed: 0.16 + Math.random() * 0.26,
+    angle: Math.random() * Math.PI * 2,
+    dir:   Math.random() * Math.PI * 2,
+    spin:  (Math.random() - 0.5) * 0.005,
+    alpha: 0.35 + Math.random() * 0.65,
+    wAmp:  0.3  + Math.random() * 0.5,
+    wSpd:  0.007 + Math.random() * 0.011,
+    wT:    Math.random() * Math.PI * 2,
+  }));
+
+  function animLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drones.forEach(d => {
+      d.wT  += d.wSpd;
+      d.dir += Math.sin(d.wT) * d.wAmp * 0.013;
+      d.x   += Math.cos(d.dir) * d.speed;
+      d.y   += Math.sin(d.dir) * d.speed;
+      d.angle += d.spin;
+      const m = d.size;
+      if (d.x < -m)              d.x = canvas.width  + m;
+      if (d.x > canvas.width+m)  d.x = -m;
+      if (d.y < -m)              d.y = canvas.height + m;
+      if (d.y > canvas.height+m) d.y = -m;
+      drawDroneIcon(d.x, d.y, d.size, d.angle, d.alpha);
+    });
+    requestAnimationFrame(animLoop);
+  }
+  animLoop();
+</script>
+
+  <script>
+    // Drone image SVG fallbacks
+    const droneImgFallbacks = {
+      "Ryze Tello EDU": "#87ceeb",
+      "DJI RoboMaster TT": "#90ee90",
+      "DJI Mini 4 Pro": "#d3d3d3"
+    };
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".drone-img-wrap img").forEach(img => {
+        img.addEventListener("error", function() {
+          const alt = this.alt;
+          const color = droneImgFallbacks[alt] || "#eee";
+          const wrap = this.closest(".drone-img-wrap");
+          if (wrap) {
+            this.remove();
+            const div = document.createElement("div");
+            div.style.cssText = "display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#555;gap:0.5rem;";
+            div.innerHTML = "<span style=\"font-size:3rem;\">🚁</span><span style=\"font-size:0.85rem;font-weight:500;\">" + alt + "</span>";
+            wrap.appendChild(div);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
